@@ -1,0 +1,39 @@
+{
+  "name": "homenode",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/homenode/homenode.git"
+  },
+  "engines": {
+    "node": "10.15.x",
+    "npm": "6.4.x"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/homenode/homenode/issues"
+  },
+  "homepage": "https://github.com/homenode/homenode#readme",
+  "dependencies": {
+    "lodash": "^4.17.11",
+    "mocha": "^6.1.4"
+  },
+  "devDependencies": {
+    "@types/chai": "4.1.7",
+    "@types/mocha": "5.2.6",
+    "chai": "4.2.0",
+    "chai-http": "4.3.0",
+    "chai-shallow-deep-equal": "1.4.6",
+    "eslint": "5.16.0",
+    "eslint-config-airbnb-base": "13.1.0",
+    "eslint-plugin-import": "2.17.2",
+    "eslint-plugin-mocha": "5.3.0",
+    "nyc": "14.0.0"
+  }
+}
