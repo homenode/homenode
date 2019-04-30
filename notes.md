@@ -367,3 +367,14 @@ devices.
 
 - App Exit();
 ```
+
+
+## Considerations..
+
+* Plugin developers will be forced to make their device-types globally
+  unique from other developers... this seems like a bad idea. Device
+  types should be logically nested within a defined interface.
+* Interface types will also need to be unique accross plugins. One way
+  to avoid this, would be to specify the plugin whenever creating
+  interfaces or plugins. And again, logically nest them within it.
+

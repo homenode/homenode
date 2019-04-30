@@ -2,37 +2,28 @@ const HomeNode = require('../index.js');
 
 HomeNode.setPluginPath('./plugins/');
 
-HomeNode.loadPlugin('spotify');
-HomeNode.loadPlugin('dax-amp');
+HomeNode.loadPlugin('clock');
 
-HomeNode.registerConfig({
-  devices: {
-    'dax-amp': {
-      config: {
-        port: '/dev/cu.usbserial',
-        mock: true,
-      },
-      kitchen: {
-        name: 'Kitchen Speakers',
-        amp: 1,
-        zone: 1,
-      },
-      dining: {
-        name: 'Dining Speakers',
-        amp: 1,
-        zone: 2,
-      },
-    },
-  },
-  scenes: {
+// Speakers
+HomeNode.interface({
+  id: 'time-machine',
+  type: 'clock-service',
+  name: 'Clock',
+});
 
-  },
-  activities: {
-
-  },
-  automations: {
-
+HomeNode.device({
+  id: 'time',
+  interface_id: 'time-machine',
+  type: 'time',
+  name: 'Time',
+  config: {
+    lat: 46.891295,
+    long: -100.834569,
   },
 });
 
-HomeNode.start();
+HomeNode.tree();
+
+HomeNode.instances.interfaces['time-machine'].startup();
+
+//HomeNode.start();
