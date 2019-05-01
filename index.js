@@ -135,10 +135,12 @@ const HomeNode = module.exports = {
   Devices
    */
 
-  validateDevice: (config) => {
-    const type = config.type || 'Unknown Interface Type';
+  validateDevice: (deviceConfig) => {
+    const type = deviceConfig.type || 'Unknown Interface Type';
     const name = `Interface: ${type}`;
-    const keys = Object.keys(config);
+
+    // Root Keys
+    const keys = Object.keys(deviceConfig);
     const required = [
       'type',
       'interface',
@@ -211,6 +213,8 @@ const HomeNode = module.exports = {
 
     let startupSequence = Promise.resolve();
 
+    // TODO: Restore traits from datastore
+
     // Start Interfaces
     console.log('System - Starting Interfaces...');
     startupSequence = _.reduce(HomeNode.instances.interfaces, (promiseChain, instance, id) => {
@@ -225,7 +229,6 @@ const HomeNode = module.exports = {
     });
 
     // Start Devices
-    // Refresh Devices
     startupSequence.then(() => {
       console.log('System - Starting Devices...');
     });
@@ -272,6 +275,8 @@ const HomeNode = module.exports = {
     });
 
     //TODO: Start Automations
+
+    return startupSequence;
   },
 
   stop: () => {

@@ -36,6 +36,6 @@ HomeNode.tree();
 // HomeNode.getInterface('time-machine').startup();
 // HomeNode.getDevice('time').startup();
 
-// console.log(HomeNode.getDevice('time').traits);
-
-HomeNode.start();
+HomeNode.start().then(() => {
+  console.log(HomeNode.getDevice('time').traits);
+});
