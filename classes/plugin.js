@@ -1,10 +1,16 @@
 const _ = require('lodash');
 
-module.exports = function pluginBaseClass(HomeNode) {
+module.exports = function pluginBaseClass(HomeNode, pluginType) {
 
-  this.registerInterface = HomeNode.registerInterface;
+  this.registerInterface = (config) => {
+    config.plugin = pluginType;
+    HomeNode.registerInterface(config);
+  };
 
-  this.registerDevice = HomeNode.registerDevice;
+  this.registerDevice = (config) => {
+    config.plugin = pluginType;
+    HomeNode.registerDevice(config);
+  };
 
   return this;
 };

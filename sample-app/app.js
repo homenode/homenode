@@ -7,6 +7,14 @@ HomeNode.loadPlugin('clock');
 // Speakers
 HomeNode.interface({
   id: 'time-machine',
+  plugin: 'clock',
+  type: 'clock-service',
+  name: 'Clock',
+});
+
+HomeNode.interface({
+  id: 'time-machine2',
+  plugin: 'clock',
   type: 'clock-service',
   name: 'Clock',
 });
@@ -24,6 +32,10 @@ HomeNode.device({
 
 HomeNode.tree();
 
-HomeNode.instances.interfaces['time-machine'].startup();
 
-//HomeNode.start();
+// HomeNode.getInterface('time-machine').startup();
+// HomeNode.getDevice('time').startup();
+
+// console.log(HomeNode.getDevice('time').traits);
+
+HomeNode.start();
