@@ -19,19 +19,16 @@ function extractTime(dateObject) {
   return moment(dateObject).format(hourFormat);
 }
 
+function isValidDate(d) {
+  return d instanceof Date && !isNaN(d);
+}
+
 module.exports = function Clock() {
   /*
   Interface
    */
   this.registerInterface({
     type: 'clock-service',
-    startup() {
-      console.log(`In the startup method of ${this.name} id: ${this.id}`);
-
-      return new Promise((resolve, reject) => {
-        setTimeout(() => resolve(), 500);
-      });
-    },
   });
 
   /*
@@ -51,17 +48,13 @@ module.exports = function Clock() {
       },
     },
     startup() {
-      console.log('In the startup method of the clock device');
       // Return promise
       this.setTrait('time', moment().format(hourFormat));
       this.setTrait('date', moment().format(dateFormat));
-
-      return new Promise((resolve, reject) => {
-        setTimeout(() => resolve(), 500);
-      });
     },
     polling: {
       secTick: {
+        runAtStartup: true,
         secs: 1,
         silent: true,
         handler: function () {
@@ -73,19 +66,19 @@ module.exports = function Clock() {
         runAtStartup: true,
         secs: 60 * 60,
         handler: function () { // Has to be a real function, to get the correct 'this'
-          const date = this.getTrait('date');
-          const solar = new SolarCalc(new Date(date), this.getConfig('lat'), this.getConfig('long'));
+          const date = this.getTrait('date').value;
+          const dateObject = new Date(date);
+
+          if (!isValidDate(dateObject)) {
+            throw new Error('Invalid date');
+          }
+
+          const solar = new SolarCalc(dateObject, this.getConfig('lat'), this.getConfig('long'));
 
           solarList.forEach((prop) => {
             const time = extractTime(solar[prop]);
             this.setTrait(prop, time);
           });
-
-          //console.log(this.traits);
-
-          // return new Promise((resolve, reject) => {
-          //   setTimeout(() => resolve(), 3000);
-          // });
         },
       },
     },
@@ -135,15 +128,15 @@ module.exports = function Clock() {
         history: false,
       },
     },
-    afterTraitChange: (trait, traitValue) => {
+    afterTraitChange(traitId, newTrait, oldTrait) {
       // The time trait will change once a min.
-      if (trait === 'time') {
+      if (traitId === 'time') {
         solarList.forEach((prop) => {
-          const time = this.getTrait(prop);
-          if (traitValue === time) {
+          const time = this.getTrait(prop).value;
+          if (newTrait.value === time) {
             this.triggerEvent(prop);
           }
-        });
+        }, this);
       }
     },
   });

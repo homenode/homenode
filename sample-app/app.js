@@ -12,13 +12,6 @@ HomeNode.interface({
   name: 'Clock',
 });
 
-HomeNode.interface({
-  id: 'time-machine2',
-  plugin: 'clock',
-  type: 'clock-service',
-  name: 'Clock',
-});
-
 HomeNode.device({
   id: 'time',
   interface_id: 'time-machine',
@@ -37,5 +30,15 @@ HomeNode.tree();
 // HomeNode.getDevice('time').startup();
 
 HomeNode.start().then(() => {
-  console.log(HomeNode.getDevice('time').traits);
+  //console.log('After Startup Traits', HomeNode.getDevice('time').traits);
+
+  // HomeNode.getDevice('time').onTraitChange('time', (trait) => {
+  //   console.log('time:', trait.new.value);
+  // });
+  //
+  // HomeNode.getDevice('time').setTrait('solarNoon', '12:11 am');
+  //
+  // HomeNode.getDevice('time').onEvent('solarNoon', () => {
+  //   console.log('event: solarNoon!');
+  // });
 });

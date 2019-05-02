@@ -1,6 +1,7 @@
 const _ = require('lodash');
 
 const Validator = require('./lib/validator.js');
+const Datastore = require('./lib/datastore.js');
 
 // const HomeNodeDevice = require('./classes/device.js');
 const Plugin = require('./classes/plugin.js');
@@ -39,7 +40,7 @@ const HomeNode = module.exports = {
 
   loadPlugin(pluginSlug) {
     const pluginPath = `${this.pluginBasePath}homenode-${pluginSlug}`;
-    console.log(`Loading HomeNode Plugin: ${pluginPath}`);
+    console.log(`System - Loading Plugin: ${pluginPath}`);
 
     HomeNode.registerPlugin(pluginSlug, require(pluginPath));
     HomeNode.createPlugin(pluginSlug);
@@ -213,10 +214,39 @@ const HomeNode = module.exports = {
 
     let startupSequence = Promise.resolve();
 
-    // TODO: Restore traits from datastore
+    // Restore Datastore
+    startupSequence = startupSequence.then(() => {
+      console.log('System - Restoring datastore...');
+    });
+
+    startupSequence = startupSequence.then(() => {
+      return Datastore.startup();
+    });
+
+    startupSequence = startupSequence.then(() => {
+      console.log('System - Datastore restore complete.');
+    });
+
+    // Restore Device Traits
+    startupSequence = startupSequence.then(() => {
+      console.log('System - Restoring device traits...');
+    });
+
+    startupSequence = startupSequence.then(() => {
+      _.each(HomeNode.instances.devices, (device) => {
+        device.restoreTraits();
+      });
+    });
+
+    startupSequence = startupSequence.then(() => {
+      console.log('System - Device traits restored.');
+    });
 
     // Start Interfaces
-    console.log('System - Starting Interfaces...');
+    startupSequence = startupSequence.then(() => {
+      console.log('System - Starting Interfaces...');
+    });
+
     startupSequence = _.reduce(HomeNode.instances.interfaces, (promiseChain, instance, id) => {
       return promiseChain.then(() => {
         console.log(`System - Starting interface: ${id}`);
@@ -224,12 +254,12 @@ const HomeNode = module.exports = {
       });
     }, startupSequence);
 
-    startupSequence.then(() => {
+    startupSequence = startupSequence.then(() => {
       console.log('System - Interfaces startup complete.');
     });
 
     // Start Devices
-    startupSequence.then(() => {
+    startupSequence = startupSequence.then(() => {
       console.log('System - Starting Devices...');
     });
 
@@ -240,12 +270,12 @@ const HomeNode = module.exports = {
       });
     }, startupSequence);
 
-    startupSequence.then(() => {
+    startupSequence = startupSequence.then(() => {
       console.log('System - Devices startup complete.');
     });
 
     // Start polling devices
-    startupSequence.then(() => {
+    startupSequence = startupSequence.then(() => {
       console.log('System - Starting polling on devices...');
     });
 
@@ -270,7 +300,7 @@ const HomeNode = module.exports = {
       });
     }, startupSequence);
 
-    startupSequence.then(() => {
+    startupSequence = startupSequence.then(() => {
       console.log('System - Devices polling setup complete.');
     });
 

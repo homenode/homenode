@@ -116,3 +116,5 @@ crashlytics-build.properties
 fabric.properties
 
 .nyc_output
+
+homenode.db

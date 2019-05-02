@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const noop = () => {};
 
 module.exports = function interfaceBaseClass(HomeNode, interfaceConfig, instanceConfig) {
   this.id = instanceConfig.id;
@@ -9,8 +10,8 @@ module.exports = function interfaceBaseClass(HomeNode, interfaceConfig, instance
   // TODO: Validate Config
   // TODO: Apply Config Defaults
 
-  this.startup = interfaceConfig.startup || Promise.resolve;
-  this.shutdown = interfaceConfig.shutdown || Promise.resolve;
+  this.startup = interfaceConfig.startup || noop;
+  this.shutdown = interfaceConfig.shutdown || noop;
 
   return this;
 };
