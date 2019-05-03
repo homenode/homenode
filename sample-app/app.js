@@ -32,13 +32,15 @@ HomeNode.tree();
 HomeNode.start().then(() => {
   //console.log('After Startup Traits', HomeNode.getDevice('time').traits);
 
-  // HomeNode.getDevice('time').onTraitChange('time', (trait) => {
+  // const Time = HomeNode.getDevice('time');
+  //
+  // Time.onTraitChange('time', (trait) => {
   //   console.log('time:', trait.new.value);
   // });
   //
-  // HomeNode.getDevice('time').setTrait('solarNoon', '12:11 am');
+  // Time.setTrait('solarNoon', '12:57 pm');
   //
-  // HomeNode.getDevice('time').onEvent('solarNoon', () => {
+  // Time.onEvent('solarNoon', () => {
   //   console.log('event: solarNoon!');
   // });
 });

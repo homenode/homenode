@@ -3,6 +3,7 @@ const events = require('events');
 const Validator = require('../lib/validator.js');
 const Datastore = require('../lib/datastore.js');
 const noop = () => {};
+const noopPromise = () => Promise.resolve();
 
 
 module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig) {
@@ -15,6 +16,7 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
   this.polling = deviceConfig.polling || {};
   this.shutdown = deviceConfig.shutdown || noop;
   this.afterTraitChange = deviceConfig.afterTraitChange || noop;
+  this.handleTraitChange = deviceConfig.handleTraitChange || noopPromise;
 
   /*
   Config
@@ -80,18 +82,23 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
   this.setTrait = (id, value) => {
     const dbId = this.getDatastoreTraitId(id);
     const currentRecord = Datastore.get('traits', dbId);
-    const newRecord = Datastore.set('traits', dbId, value);
 
-    this.traits[id] = newRecord;
+    return this.handleTraitChange(id, value).then(() => {
+      const newRecord = Datastore.set('traits', dbId, value);
 
-    if (currentRecord && currentRecord.value !== newRecord.value) {
-      this.triggerTraitChange(id, {
-        old: currentRecord,
-        new: newRecord,
-      });
+      this.traits[id] = newRecord;
 
-      this.afterTraitChange.call(this, id, newRecord, currentRecord);
-    }
+      if (currentRecord && currentRecord.value !== newRecord.value) {
+        this.triggerTraitChange(id, {
+          old: currentRecord,
+          new: newRecord,
+        });
+
+        this.afterTraitChange.call(this, id, newRecord, currentRecord);
+      }
+    }).catch((err) => {
+      console.log(`ERROR - Unable to update device (${this.id}) trait (${id}) to value (${value}). Response:`, err);
+    });
   };
 
   this.getTrait = (id) => {
