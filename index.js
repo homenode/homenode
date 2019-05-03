@@ -7,6 +7,7 @@ const Datastore = require('./lib/datastore.js');
 const Plugin = require('./classes/plugin.js');
 const Interface = require('./classes/interface.js');
 const Device = require('./classes/device.js');
+const Automation = require('./classes/automation.js');
 
 const HomeNode = module.exports = {
   // Holds references to all types that are registered
@@ -14,6 +15,7 @@ const HomeNode = module.exports = {
     plugins: {},
     interfaces: {},
     devices: {},
+    automations: {},
   },
 
   // Holds all created instances of things by id
@@ -21,6 +23,7 @@ const HomeNode = module.exports = {
     plugins: {},
     interfaces: {},
     devices: {},
+    automations: {},
   },
 
   // Holds a map of all registered plugins/interfaces/devices/traits/events/etc
@@ -217,6 +220,40 @@ const HomeNode = module.exports = {
     return HomeNode.instances.devices[id];
   },
 
+  /*
+  Automations
+   */
+
+  validateAutomationInstance: (config) => {
+    const id = config.id || 'Unknown Automation ID';
+    const name = `Automation Instance: ${id}`;
+    const keys = Object.keys(config);
+    const required = [
+      'id',
+      'trigger',
+    ];
+    const optional = [
+      'startup',
+      'debounce',
+    ];
+
+    Validator.validateKeys(name, keys, required, optional);
+
+    return true;
+  },
+
+  automation: (instanceConfig) => {
+    if (HomeNode.validateAutomationInstance(instanceConfig)) {
+      // Create a instance of the automation
+      const id = instanceConfig.id;
+      const automationInstance = new Automation(HomeNode, instanceConfig);
+
+      HomeNode.instances.automations[id] = automationInstance;
+
+      HomeNode.instanceMap[`automations:${id}`] = {};
+    }
+  },
+
   start: () => {
     console.log('System - Starting up...');
 
@@ -312,7 +349,19 @@ const HomeNode = module.exports = {
       console.log('System - Devices polling setup complete.');
     });
 
-    //TODO: Start Automations
+    startupSequence = startupSequence.then(() => {
+      console.log('System - Starting automations...');
+    });
+
+    startupSequence = startupSequence.then(() => {
+      _.each(HomeNode.instances.automations, (automation) => {
+        automation.startup();
+      });
+    });
+
+    startupSequence = startupSequence.then(() => {
+      console.log('System - Automations started.');
+    });
 
     return startupSequence;
   },

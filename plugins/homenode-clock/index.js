@@ -57,7 +57,7 @@ module.exports = function Clock() {
         runAtStartup: true,
         secs: 1,
         silent: true,
-        handler: function () {
+        handler() {
           this.syncTrait('time', moment().format(hourFormat));
           this.syncTrait('date', moment().format(dateFormat));
         },
@@ -65,7 +65,7 @@ module.exports = function Clock() {
       updateSolarCalc: {
         runAtStartup: true,
         secs: 60 * 60,
-        handler: function () { // Has to be a real function, to get the correct 'this'
+        handler() { // Has to be a real function, to get the correct 'this'
           const date = this.getTrait('date').value;
           const dateObject = new Date(date);
 
