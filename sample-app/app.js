@@ -5,6 +5,11 @@ HomeNode.setPluginPath('./plugins/');
 HomeNode.loadPlugin('clock');
 HomeNode.loadPlugin('virtuals');
 
+// HomeNode.homekit({
+//   'pin': '123-23-456',
+//   autoClean: true,
+// });
+
 // Speakers
 HomeNode.interface({
   id: 'time-machine',
@@ -43,7 +48,7 @@ HomeNode.device({
 HomeNode.automation({
   id: 'turn-on-lights', // Used for tracking/logging/external triggering
   debounce: 2, // Secs - Built in debouncer for multiple calls to trigger(); Trigger will be called when secs have elapsed without more triggers.
-  startup: function() {
+  startup() {
     // HomeNode.getDevice('front-door-ring-doorbell').onEvent('ring', () => {
     //   this.trigger();
     // });
@@ -61,7 +66,7 @@ HomeNode.automation({
     //
     // });
   },
-  trigger: function() {
+  trigger() {
     //HomeNode.getDevice('front-door-soffit-lights').setTrait('power', true);
   },
 });
@@ -82,6 +87,8 @@ HomeNode.automation({
     //console.log("TRIGGERED");
   },
 });
+
+// HomeNode.integrations.homekit.cleanup(); // Hard sync
 
 
 // HomeNode.scene({

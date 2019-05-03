@@ -118,3 +118,4 @@ fabric.properties
 .nyc_output
 
 homenode.db
+integrations/persist/

@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/homenode/homenode#readme",
   "dependencies": {
+    "hap-nodejs": "^0.4.51",
     "lodash": "^4.17.11",
     "lokijs": "^1.5.6"
   },

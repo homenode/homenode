@@ -18,6 +18,8 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
   this.afterTraitChange = deviceConfig.afterTraitChange || noop;
   this.handleTraitChange = deviceConfig.handleTraitChange || noopPromise;
 
+  // TODO: Make a device define it's exposed events.
+
   /*
   Config
   TODO: This is gross. And just barely qualifies as validation.
