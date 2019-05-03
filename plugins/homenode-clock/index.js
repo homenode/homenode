@@ -49,8 +49,8 @@ module.exports = function Clock() {
     },
     startup() {
       // Return promise
-      this.setTrait('time', moment().format(hourFormat));
-      this.setTrait('date', moment().format(dateFormat));
+      this.syncTrait('time', moment().format(hourFormat));
+      this.syncTrait('date', moment().format(dateFormat));
     },
     polling: {
       secTick: {
@@ -58,8 +58,8 @@ module.exports = function Clock() {
         secs: 1,
         silent: true,
         handler: function () {
-          this.setTrait('time', moment().format(hourFormat));
-          this.setTrait('date', moment().format(dateFormat));
+          this.syncTrait('time', moment().format(hourFormat));
+          this.syncTrait('date', moment().format(dateFormat));
         },
       },
       updateSolarCalc: {
@@ -77,7 +77,7 @@ module.exports = function Clock() {
 
           solarList.forEach((prop) => {
             const time = extractTime(solar[prop]);
-            this.setTrait(prop, time);
+            this.syncTrait(prop, time);
           });
         },
       },

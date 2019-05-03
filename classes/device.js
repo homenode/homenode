@@ -70,8 +70,8 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
   // Initialize
   this.restoreTraits = () => {
     _.each(deviceConfig.traits || [], (traitConfig, traitId) => {
-      const dbId = this.getDatastoreTraitId(traitId);
-      this.traits[traitId] = Datastore.get('traits', dbId) || null;
+      const defaultValue = (_.has(traitConfig, 'default') ? traitConfig.default : null);
+      this.traits[traitId] = this.getOrInsertTrait(traitId, defaultValue);
     });
   };
 
@@ -79,26 +79,39 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
     return `${this.interface_id}:${this.id}:${traitId}`;
   };
 
-  this.setTrait = (id, value) => {
-    const dbId = this.getDatastoreTraitId(id);
+  this.getOrInsertTrait = (traitId, defaultValue) => {
+    const dbId = this.getDatastoreTraitId(traitId);
     const currentRecord = Datastore.get('traits', dbId);
 
+    if (currentRecord) {
+      return currentRecord;
+    }
+
+    return Datastore.set('traits', dbId, defaultValue);
+  };
+
+  // Trys to handle the traitChange() and if successful then calls syncTrait() to capture the new value.
+  this.setTrait = (id, value) => {
     return this.handleTraitChange(id, value).then(() => {
-      const newRecord = Datastore.set('traits', dbId, value);
-
-      this.traits[id] = newRecord;
-
-      if (currentRecord && currentRecord.value !== newRecord.value) {
-        this.triggerTraitChange(id, {
-          old: currentRecord,
-          new: newRecord,
-        });
-
-        this.afterTraitChange.call(this, id, newRecord, currentRecord);
-      }
+      this.syncTrait(id, value);
     }).catch((err) => {
       console.log(`ERROR - Unable to update device (${this.id}) trait (${id}) to value (${value}). Response:`, err);
     });
+  };
+
+  // Updates our local trait datastore, and triggers events
+  this.syncTrait = (id, value) => {
+    const dbId = this.getDatastoreTraitId(id);
+    const currentRecord = Datastore.get('traits', dbId);
+    const newRecord = Datastore.set('traits', dbId, value);
+
+    this.traits[id] = newRecord;
+
+    if (currentRecord && currentRecord.value !== newRecord.value) {
+      this.triggerTraitChange(id, newRecord, currentRecord);
+
+      this.afterTraitChange.call(this, id, newRecord, currentRecord);
+    }
   };
 
   this.getTrait = (id) => {
@@ -111,8 +124,8 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
 
   this.events = new events.EventEmitter();
 
-  this.triggerTraitChange = (traitId, payload) => {
-    this.events.emit(`traitChange:${traitId}`, payload);
+  this.triggerTraitChange = (traitId, newTrait, oldTrait) => {
+    this.events.emit(`traitChange:${traitId}`, newTrait, oldTrait);
   };
 
   this.onTraitChange = (traitId, cb) => {

@@ -3,6 +3,7 @@ const HomeNode = require('../index.js');
 HomeNode.setPluginPath('./plugins/');
 
 HomeNode.loadPlugin('clock');
+HomeNode.loadPlugin('virtuals');
 
 // Speakers
 HomeNode.interface({
@@ -21,6 +22,20 @@ HomeNode.device({
     lat: 46.891295,
     long: -100.834569,
   },
+});
+
+HomeNode.interface({
+  id: 'virtuals',
+  plugin: 'virtuals',
+  type: 'virtuals',
+  name: 'Virtuals',
+});
+
+HomeNode.device({
+  id: 'fake-switch',
+  interface_id: 'virtuals',
+  type: 'switch',
+  name: 'My Fake Switch',
 });
 
 HomeNode.tree();
@@ -43,4 +58,15 @@ HomeNode.start().then(() => {
   // Time.onEvent('solarNoon', () => {
   //   console.log('event: solarNoon!');
   // });
+
+  // const fakeSwitch = HomeNode.getDevice('fake-switch');
+  //
+  // fakeSwitch.onTraitChange('power', (newT, oldT) => {
+  //   console.log('SWITCH CHANGE!', newT, oldT);
+  // });
+  //
+  // const powerTrait = fakeSwitch.getTrait('power');
+  //
+  // fakeSwitch.setTrait('power', !powerTrait.value);
+
 });

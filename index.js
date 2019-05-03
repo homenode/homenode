@@ -115,6 +115,14 @@ const HomeNode = module.exports = {
 
   interface: (instanceConfig) => {
     if (HomeNode.validateInterfaceInstance(instanceConfig)) {
+      if (!HomeNode.types.plugins[instanceConfig.plugin]) {
+        throw new Error(`ERROR: Plugin (${instanceConfig.plugin}) is not loaded.`);
+      }
+
+      if (!HomeNode.types.interfaces[instanceConfig.type]) {
+        throw new Error(`ERROR: Interface type (${instanceConfig.type}) is not loaded.`);
+      }
+
       // Create a instance of the interface
       const id = instanceConfig.id;
       const type = instanceConfig.type;
