@@ -43,7 +43,6 @@ HomeNode.device({
   name: 'My Fake Switch',
 });
 
-
 // Automatically turn lights on, when motion is detected
 HomeNode.automation({
   id: 'turn-on-lights', // Used for tracking/logging/external triggering
@@ -65,6 +64,9 @@ HomeNode.automation({
     //   }
     //
     // });
+    setTimeout(() => {
+      this.trigger();
+    }, 4000);
   },
   trigger() {
     //HomeNode.getDevice('front-door-soffit-lights').setTrait('power', true);
@@ -89,7 +91,6 @@ HomeNode.automation({
 });
 
 // HomeNode.integrations.homekit.cleanup(); // Hard sync
-
 
 // HomeNode.scene({
 //   id: 'movie-time',

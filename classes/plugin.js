@@ -1,5 +1,7 @@
 const _ = require('lodash');
 
+const Logger = require('../lib/logger.js');
+
 module.exports = function pluginBaseClass(HomeNode, pluginType) {
 
   this.registerInterface = (config) => {
@@ -11,6 +13,9 @@ module.exports = function pluginBaseClass(HomeNode, pluginType) {
     config.plugin = pluginType;
     HomeNode.registerDevice(config);
   };
+
+  this.logger = new Logger();
+  this.logger.addPrefix(`Plugin (${this.id}):`);
 
   return this;
 };

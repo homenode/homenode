@@ -3,6 +3,7 @@ const _ = require('lodash');
 const Validator = require('./lib/validator.js');
 const Datastore = require('./lib/datastore.js');
 const Logger = require('./lib/logger.js');
+
 const SysLogger = new Logger();
 SysLogger.addPrefix('System:', 'system');
 
