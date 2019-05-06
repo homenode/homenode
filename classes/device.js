@@ -2,9 +2,8 @@ const _ = require('lodash');
 const events = require('events');
 const Validator = require('../lib/validator.js');
 const Datastore = require('../lib/datastore.js');
-const noop = () => {};
-const noopPromise = () => Promise.resolve();
-
+const Logger = require('../lib/logger.js');
+const { safeLogString, noop, noopPromise } = require('../lib/utils.js');
 
 module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig) {
   this.id = instanceConfig.id;
@@ -17,6 +16,9 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
   this.shutdown = deviceConfig.shutdown || noop;
   this.afterTraitChange = deviceConfig.afterTraitChange || noop;
   this.handleTraitChange = deviceConfig.handleTraitChange || noopPromise;
+
+  this.logger = new Logger();
+  this.logger.addPrefix(`Device (${this.id}):`);
 
   // TODO: Make a device define it's exposed events.
 
@@ -34,7 +36,10 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
       list.optional.push(propertyKey);
     }
     return list;
-  }, { required: [], optional: [] });
+  }, {
+    required: [],
+    optional: [],
+  });
 
   Validator.validateKeys(`Device: ${this.id}`, userProvidedConfigKeys, configGroups.required, configGroups.optional);
 
@@ -45,11 +50,10 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
 
   this.getConfig = (id) => {
     if (!_.has(this.config, id)) {
-      throw new Error(`Unknown getConfig() key (${id}) passed to device (${this.id})`);
+      throw new Error(`Unknown getConfig() key (${id})`);
     }
     return this.config[id];
   };
-
 
   /*
   Polling
@@ -58,7 +62,7 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
   this.runPoll = (id) => {
     const poll = this.polling[id];
     if (!poll.silent) {
-      console.log(`System - Running poll (${id}) on device (${this.id})`);
+      this.logger.log(`Running poll (${id})`);
     }
     return this.polling[id].handler.call(this);
   };
@@ -74,6 +78,7 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
     _.each(deviceConfig.traits || [], (traitConfig, traitId) => {
       const defaultValue = (_.has(traitConfig, 'default') ? traitConfig.default : null);
       this.traits[traitId] = this.getOrInsertTrait(traitId, defaultValue);
+      this.logger.debug(`restoreTrait (${traitId}) to (${this.traits[traitId].value})`);
     });
   };
 
@@ -92,17 +97,21 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
     return Datastore.set('traits', dbId, defaultValue);
   };
 
-  // Trys to handle the traitChange() and if successful then calls syncTrait() to capture the new value.
+  // Trys to handle the traitChange() and if successful then calls syncTrait() to capture the new
+  // value.
   this.setTrait = (id, value) => {
     return this.handleTraitChange(id, value).then(() => {
+      this.logger.debug(`setTrait: (${id}) to (${value})`);
       this.syncTrait(id, value);
     }).catch((err) => {
-      console.log(`ERROR - Unable to update device (${this.id}) trait (${id}) to value (${value}). Response:`, err);
+      this.logger.error(`setTrait: (${id}) to (${value}) failed. Response: `, err);
     });
   };
 
   // Updates our local trait datastore, and triggers events
   this.syncTrait = (id, value) => {
+    this.logger.debug(`syncTrait: (${id}) to (${value})`);
+
     const dbId = this.getDatastoreTraitId(id);
     const currentRecord = Datastore.get('traits', dbId);
     const newRecord = Datastore.set('traits', dbId, value);
@@ -127,6 +136,7 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
   this.events = new events.EventEmitter();
 
   this.triggerTraitChange = (traitId, newTrait, oldTrait) => {
+    this.logger.log(`Trait Change: (${traitId}) from (${oldTrait.value}) to (${newTrait.value})`);
     this.events.emit(`traitChange:${traitId}`, newTrait, oldTrait);
   };
 
@@ -135,13 +145,17 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
   };
 
   this.triggerEvent = (eventId, payload) => {
+    if (payload !== undefined) {
+      this.logger.log(`Event Triggered: (${eventId}) with payload (${safeLogString(payload)})`);
+    } else {
+      this.logger.log(`Event Triggered: (${eventId})`);
+    }
     this.events.emit(`event:${eventId}`, payload);
   };
 
   this.onEvent = (eventId, cb) => {
     this.events.on(`event:${eventId}`, cb);
   };
-
 
   return this;
 };

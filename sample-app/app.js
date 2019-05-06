@@ -106,26 +106,26 @@ HomeNode.tree();
 HomeNode.start().then(() => {
   //console.log('After Startup Traits', HomeNode.getDevice('time').traits);
 
-  // const Time = HomeNode.getDevice('time');
-  //
-  // Time.onTraitChange('time', (trait) => {
-  //   console.log('time:', trait.new.value);
-  // });
-  //
-  // Time.setTrait('solarNoon', '12:57 pm');
-  //
-  // Time.onEvent('solarNoon', () => {
-  //   console.log('event: solarNoon!');
-  // });
+  const Time = HomeNode.getDevice('time');
 
-  // const fakeSwitch = HomeNode.getDevice('fake-switch');
-  //
-  // fakeSwitch.onTraitChange('power', (newT, oldT) => {
-  //   console.log('SWITCH CHANGE!', newT, oldT);
-  // });
-  //
-  // const powerTrait = fakeSwitch.getTrait('power');
-  //
-  // fakeSwitch.setTrait('power', !powerTrait.value);
+  Time.onTraitChange('time', (newTrait, oldTrait) => {
+    //console.log('time:', newTrait.value, oldTrait.value);
+  });
+
+  Time.setTrait('solarNoon', '10:15 pm');
+
+  Time.onEvent('solarNoon', () => {
+    //console.log('event: solarNoon!');
+  });
+
+  const fakeSwitch = HomeNode.getDevice('fake-switch');
+
+  fakeSwitch.onTraitChange('power', (newT, oldT) => {
+    //console.log('SWITCH CHANGE!', newT, oldT);
+  });
+
+  const powerTrait = fakeSwitch.getTrait('power');
+
+  fakeSwitch.setTrait('power', !powerTrait.value);
 
 });

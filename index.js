@@ -2,6 +2,9 @@ const _ = require('lodash');
 
 const Validator = require('./lib/validator.js');
 const Datastore = require('./lib/datastore.js');
+const Logger = require('./lib/logger.js');
+const SysLogger = new Logger();
+SysLogger.addPrefix('System:', 'system');
 
 // const HomeNodeDevice = require('./classes/device.js');
 const Plugin = require('./classes/plugin.js');
@@ -43,7 +46,7 @@ const HomeNode = module.exports = {
 
   loadPlugin(pluginSlug) {
     const pluginPath = `${this.pluginBasePath}homenode-${pluginSlug}`;
-    console.log(`System - Loading Plugin: ${pluginPath}`);
+    SysLogger.log(`Loading Plugin: ${pluginPath}`);
 
     HomeNode.registerPlugin(pluginSlug, require(pluginPath));
     HomeNode.createPlugin(pluginSlug);
@@ -255,13 +258,13 @@ const HomeNode = module.exports = {
   },
 
   start: () => {
-    console.log('System - Starting up...');
+    SysLogger.log('Starting up...');
 
     let startupSequence = Promise.resolve();
 
     // Restore Datastore
     startupSequence = startupSequence.then(() => {
-      console.log('System - Restoring datastore...');
+      SysLogger.log('Restoring datastore...');
     });
 
     startupSequence = startupSequence.then(() => {
@@ -269,12 +272,12 @@ const HomeNode = module.exports = {
     });
 
     startupSequence = startupSequence.then(() => {
-      console.log('System - Datastore restore complete.');
+      SysLogger.log('Datastore restore complete.');
     });
 
     // Restore Device Traits
     startupSequence = startupSequence.then(() => {
-      console.log('System - Restoring device traits...');
+      SysLogger.log('Restoring device traits...');
     });
 
     startupSequence = startupSequence.then(() => {
@@ -284,44 +287,44 @@ const HomeNode = module.exports = {
     });
 
     startupSequence = startupSequence.then(() => {
-      console.log('System - Device traits restored.');
+      SysLogger.log('Device traits restored.');
     });
 
     // Start Interfaces
     startupSequence = startupSequence.then(() => {
-      console.log('System - Starting Interfaces...');
+      SysLogger.log('Starting Interfaces...');
     });
 
     startupSequence = _.reduce(HomeNode.instances.interfaces, (promiseChain, instance, id) => {
       return promiseChain.then(() => {
-        console.log(`System - Starting interface: ${id}`);
+        SysLogger.log(`Starting interface: ${id}`);
         return instance.startup();
       });
     }, startupSequence);
 
     startupSequence = startupSequence.then(() => {
-      console.log('System - Interfaces startup complete.');
+      SysLogger.log('Interfaces startup complete.');
     });
 
     // Start Devices
     startupSequence = startupSequence.then(() => {
-      console.log('System - Starting Devices...');
+      SysLogger.log('Starting Devices...');
     });
 
     startupSequence = _.reduce(HomeNode.instances.devices, (promiseChain, instance, id) => {
       return promiseChain.then(() => {
-        console.log(`System - Starting device: ${id}`);
+        SysLogger.log(`Starting device: ${id}`);
         return instance.startup();
       });
     }, startupSequence);
 
     startupSequence = startupSequence.then(() => {
-      console.log('System - Devices startup complete.');
+      SysLogger.log('Devices startup complete.');
     });
 
     // Start polling devices
     startupSequence = startupSequence.then(() => {
-      console.log('System - Starting polling on devices...');
+      SysLogger.log('Starting polling on devices...');
     });
 
     startupSequence = _.reduce(HomeNode.instances.devices, (promiseChain, instance, deviceId) => {
@@ -329,7 +332,7 @@ const HomeNode = module.exports = {
       return promiseChain.then(() => {
         return _.reduce(instance.polling, (promiseChain, poll, pollId) => {
           return promiseChain.then(() => {
-            console.log(`System - Registering polling (${pollId}) on device (${deviceId})`);
+            SysLogger.log(`Registering polling (${pollId}) on device (${deviceId})`);
 
             // Register poll
             setInterval(() => {
@@ -346,21 +349,22 @@ const HomeNode = module.exports = {
     }, startupSequence);
 
     startupSequence = startupSequence.then(() => {
-      console.log('System - Devices polling setup complete.');
+      SysLogger.log('Devices polling setup complete.');
     });
 
     startupSequence = startupSequence.then(() => {
-      console.log('System - Starting automations...');
+      SysLogger.log('Starting automations...');
     });
 
     startupSequence = startupSequence.then(() => {
-      _.each(HomeNode.instances.automations, (automation) => {
+      _.each(HomeNode.instances.automations, (automation, id) => {
+        SysLogger.log(`Starting automation: ${id}`);
         automation.startup();
       });
     });
 
     startupSequence = startupSequence.then(() => {
-      console.log('System - Automations started.');
+      SysLogger.log('Automations started.');
     });
 
     return startupSequence;
@@ -371,13 +375,13 @@ const HomeNode = module.exports = {
   },
 
   tree: () => {
-    console.log('HomeNode Debug Tree *****************************');
-    console.log(`Plugins Base Path: ${HomeNode.pluginBasePath}`);
+    SysLogger.log('HomeNode Debug Tree *****************************');
+    SysLogger.log(`Plugins Base Path: ${HomeNode.pluginBasePath}`);
 
-    console.log('System Map **************************************');
-    console.log(JSON.stringify(HomeNode.systemMap, undefined, 2));
+    SysLogger.log('System Map **************************************');
+    SysLogger.log(JSON.stringify(HomeNode.systemMap, undefined, 2));
 
-    console.log('Instance Map ************************************');
-    console.log(JSON.stringify(HomeNode.instanceMap, undefined, 2));
+    SysLogger.log('Instance Map ************************************');
+    SysLogger.log(JSON.stringify(HomeNode.instanceMap, undefined, 2));
   },
 };
