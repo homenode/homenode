@@ -45,3 +45,43 @@ Virtuals.device({
 //
 //   },
 // });
+
+// Possible Homekit devoce spec
+// homekit: {
+//   'manufacture': 'Google Labs',
+//   'model': '',
+//   'serialNumber': '',
+//
+//   services: {
+//     'lock-mech': {
+//       service: Service.LockableDevice,
+//       traits: {
+//         currentState: {
+//           characteristic: Characteristic.LockStatus,
+//           values: {
+//             true: 'Open',
+//             false: 'Closed',
+//           },
+//         },
+//         desiredState: {
+//           characteristic: Characteristic.DesiredLockStatus,
+//           mapTo: {
+//             true: 'On',
+//             false: 'Off',
+//           },
+//           mapFrom: {
+//             'On': true,
+//             'Opening': true,
+//             'Off': false,
+//           },
+//         },
+//       },
+//     },
+//     'motion-sensor': {},
+//   },
+//   events: {
+//     'motion': {
+//
+//     }
+//   }
+// },

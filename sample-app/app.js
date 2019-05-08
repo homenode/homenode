@@ -3,20 +3,12 @@ const HomeNode = require('../index.js');
 HomeNode.setPluginPath('./plugins/');
 
 const Clock = HomeNode.loadPlugin('clock');
-HomeNode.loadPlugin('virtuals');
-HomeNode.loadPlugin('say');
+const Virtuals = HomeNode.loadPlugin('virtuals');
+const Say = HomeNode.loadPlugin('say');
 
 // Clock
-
-Clock.interface({
-  id: 'time-machine',
-  type: 'clock-service',
-  name: 'Clock',
-});
-
 Clock.device({
   id: 'time',
-  interface_id: 'time-machine',
   type: 'time',
   name: 'Time',
   config: {
@@ -25,22 +17,13 @@ Clock.device({
   },
 });
 
-// Virtuals
-const VI = HomeNode.interface({
-  id: 'virtuals',
-  plugin: 'virtuals',
-  type: 'virtuals',
-  name: 'Virtuals',
-});
-
-VI.device({
+Virtuals.device({
   id: 'fake-switch',
   type: 'switch',
   name: 'My Fake Switch',
 });
 
-// Say
-VI.device({
+Say.device({
   id: 'say',
   type: 'say',
   name: 'Mac Say',
@@ -52,7 +35,7 @@ HomeNode.automation({
   startup() {
     setTimeout(() => {
       this.trigger();
-    }, 1000);
+    }, 3000);
   },
   trigger() {
     // Do stuff
@@ -75,25 +58,24 @@ HomeNode.automation({
 HomeNode.tree();
 
 HomeNode.start().then(() => {
-  const Time = HomeNode.getDevice('time');
+  // These are samples. Real automation code should be placed in HomeNode.automation()
+  const time = HomeNode.getDevice('time');
 
-  Time.onTraitChange('time', (newTrait, oldTrait) => {
-    //console.log('time:', newTrait.value, oldTrait.value);
-  });
+  time.setTrait('solarNoon', '10:15 pm');
 
-  Time.setTrait('solarNoon', '10:15 pm');
-
-  Time.onEvent('solarNoon', () => {
-    //console.log('event: solarNoon!');
+  time.onEvent('solarNoon', () => {
+    // Do Something
   });
 
   const fakeSwitch = HomeNode.getDevice('fake-switch');
 
   fakeSwitch.onTraitChange('power', (newT, oldT) => {
-    //console.log('SWITCH CHANGE!', newT, oldT);
+    // Do Something...
   });
 
-  const powerTrait = fakeSwitch.getTrait('power');
+  // Fake activity
+  setTimeout(() => {
+    fakeSwitch.setTrait('power', !fakeSwitch.getTrait('power'));
+  }, 6000);
 
-  fakeSwitch.setTrait('power', !powerTrait.value);
 });

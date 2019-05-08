@@ -220,6 +220,10 @@ const HomeNode = module.exports = {
       HomeNode.types.devices[config.type] = config;
 
       if (config.interface) {
+        if (!HomeNode.types.interfaces[config.interface]) {
+          throw new Error(`ERROR: Interface type (${config.interface}) is not loaded.`);
+        }
+
         HomeNode.systemMap[`plugin:${config.plugin}`][`interface:${config.interface}`][`device:${config.type}`] = {};
       } else {
         HomeNode.systemMap[`plugin:${config.plugin}`][`device:${config.type}`] = {};

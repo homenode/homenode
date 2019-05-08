@@ -1,61 +1,15 @@
 module.exports = function Virtuals() {
   /*
-  Interface
-   */
-  this.registerInterface({
-    type: 'virtuals',
-  });
-
-  /*
-  Device
+  Virtual Switch
    */
   this.registerDevice({
     type: 'switch',
-    interface: 'virtuals',
     traits: {
       power: {
         type: 'bool',
         default: false,
       },
     },
-    // homekit: {
-    //   'manufacture': 'Google Labs',
-    //   'model': '',
-    //   'serialNumber': '',
-    //
-    //   services: {
-    //     'lock-mech': {
-    //       service: Service.LockableDevice,
-    //       traits: {
-    //         currentState: {
-    //           characteristic: Characteristic.LockStatus,
-    //           values: {
-    //             true: 'Open',
-    //             false: 'Closed',
-    //           },
-    //         },
-    //         desiredState: {
-    //           characteristic: Characteristic.DesiredLockStatus,
-    //           mapTo: {
-    //             true: 'On',
-    //             false: 'Off',
-    //           },
-    //           mapFrom: {
-    //             'On': true,
-    //             'Opening': true,
-    //             'Off': false,
-    //           },
-    //         },
-    //       },
-    //     },
-    //     'motion-sensor': {},
-    //   },
-    //   events: {
-    //     'motion': {
-    //
-    //     }
-    //   }
-    // },
     afterTraitChange(traitId, newTrait, oldTrait) {
       if (newTrait.value === true && oldTrait.value === false) {
         this.triggerEvent('on');
@@ -65,9 +19,11 @@ module.exports = function Virtuals() {
     },
   });
 
+  /*
+  Virtual Dimmer Switch
+   */
   this.registerDevice({
     type: 'dimmer',
-    interface: 'virtuals',
     traits: {
       power: {
         type: 'bool',

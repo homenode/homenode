@@ -25,18 +25,10 @@ function isValidDate(d) {
 
 module.exports = function Clock() {
   /*
-  Interface
-   */
-  this.registerInterface({
-    type: 'clock-service',
-  });
-
-  /*
   Device
    */
   this.registerDevice({
     type: 'time',
-    interface: 'clock-service',
     config: {
       lat: {
         type: 'float',
