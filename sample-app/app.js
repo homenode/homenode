@@ -41,13 +41,6 @@ HomeNode.device({
 });
 
 // Say
-HomeNode.interface({
-  id: 'robot',
-  plugin: 'say',
-  type: 'say',
-  name: 'Mac Say',
-});
-
 HomeNode.device({
   id: 'say',
   interface_id: 'robot',

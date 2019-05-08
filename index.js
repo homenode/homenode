@@ -159,10 +159,10 @@ const HomeNode = module.exports = {
     const keys = Object.keys(deviceConfig);
     const required = [
       'type',
-      'interface',
       'plugin',
     ];
     const optional = [
+      'interface',
       'config',
       'startup',
       'polling',
@@ -183,7 +183,11 @@ const HomeNode = module.exports = {
     if (HomeNode.validateDevice(config)) {
       HomeNode.types.devices[config.type] = config;
 
-      HomeNode.systemMap[`plugin:${config.plugin}`][`interface:${config.interface}`][`device:${config.type}`] = {};
+      if (config.interface) {
+        HomeNode.systemMap[`plugin:${config.plugin}`][`interface:${config.interface}`][`device:${config.type}`] = {};
+      } else {
+        HomeNode.systemMap[`plugin:${config.plugin}`][`device:${config.type}`] = {};
+      }
     }
   },
 
@@ -216,7 +220,11 @@ const HomeNode = module.exports = {
 
       HomeNode.instances.devices[id] = deviceInstance;
 
-      HomeNode.instanceMap[`plugin:${deviceConfig.plugin}`][`interface:${instanceConfig.interface_id}`][`device:${id}`] = {};
+      if (deviceConfig.interface) {
+        HomeNode.instanceMap[`plugin:${deviceConfig.plugin}`][`interface:${instanceConfig.interface_id}`][`device:${id}`] = {};
+      } else {
+        HomeNode.instanceMap[`plugin:${deviceConfig.plugin}`][`device:${id}`] = {};
+      }
     }
   },
 
