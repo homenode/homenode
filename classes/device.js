@@ -7,6 +7,7 @@ const { safeLogString, noop, noopPromise } = require('../lib/utils.js');
 
 module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig) {
   this.id = instanceConfig.id;
+  this.plugin = instanceConfig.plugin;
   this.type = instanceConfig.type;
   this.interface_id = instanceConfig.interface_id;
   this.name = instanceConfig.name;

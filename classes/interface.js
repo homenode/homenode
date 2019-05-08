@@ -6,6 +6,7 @@ const { noop } = require('../lib/utils.js');
 
 module.exports = function interfaceBaseClass(HomeNode, interfaceConfig, instanceConfig) {
   this.id = instanceConfig.id;
+  this.plugin = instanceConfig.plugin;
   this.type = instanceConfig.type;
   this.name = instanceConfig.name;
   this.config = instanceConfig.config || {};
@@ -47,6 +48,12 @@ module.exports = function interfaceBaseClass(HomeNode, interfaceConfig, instance
 
   this.startup = interfaceConfig.startup || noop;
   this.shutdown = interfaceConfig.shutdown || noop;
+
+  this.device = (instanceConfig) => {
+    instanceConfig.plugin = this.plugin;
+    instanceConfig.interface_id = this.id;
+    return HomeNode.device(instanceConfig);
+  };
 
   return this;
 };

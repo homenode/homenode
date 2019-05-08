@@ -69,7 +69,9 @@ const HomeNode = module.exports = {
     SysLogger.log(`Loading Plugin: ${pluginPath}`);
 
     HomeNode.registerPlugin(pluginSlug, require(pluginPath));
-    HomeNode.createPlugin(pluginSlug);
+    const pluginInstance = HomeNode.createPlugin(pluginSlug);
+
+    return pluginInstance;
   },
 
   registerPlugin: (type, pluginModule) => {
@@ -86,6 +88,8 @@ const HomeNode = module.exports = {
     HomeNode.registerInstance('plugins', type, pluginInstance);
 
     HomeNode.instanceMap[`plugin:${type}`] = {};
+
+    return pluginInstance;
   },
 
   getPlugin: (id) => {
@@ -106,7 +110,7 @@ const HomeNode = module.exports = {
     const keys = Object.keys(config);
     const required = [
       'type',
-      'plugin', // Provided by registerInterface()
+      'plugin',
     ];
     const optional = [
       'config',
@@ -167,6 +171,7 @@ const HomeNode = module.exports = {
 
       HomeNode.instanceMap[`plugin:${interfaceConfig.plugin}`][`interface:${id}`] = {};
 
+      return interfaceInstance;
     }
   },
 
@@ -228,6 +233,7 @@ const HomeNode = module.exports = {
     const keys = Object.keys(config);
     const required = [
       'id',
+      'plugin',
       'type',
       'name',
     ];
@@ -260,6 +266,8 @@ const HomeNode = module.exports = {
       } else {
         HomeNode.instanceMap[`plugin:${deviceConfig.plugin}`][`device:${id}`] = {};
       }
+
+      return deviceInstance;
     }
   },
 

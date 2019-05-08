@@ -17,5 +17,15 @@ module.exports = function pluginBaseClass(HomeNode, pluginType) {
   this.logger = new Logger();
   this.logger.addPrefix(`Plugin (${this.id}):`);
 
+  this.interface = (instanceConfig) => {
+    instanceConfig.plugin = pluginType;
+    return HomeNode.interface(instanceConfig);
+  };
+
+  this.device = (instanceConfig) => {
+    instanceConfig.plugin = pluginType;
+    return HomeNode.device(instanceConfig);
+  };
+
   return this;
 };

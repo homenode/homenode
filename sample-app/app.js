@@ -2,19 +2,19 @@ const HomeNode = require('../index.js');
 
 HomeNode.setPluginPath('./plugins/');
 
-HomeNode.loadPlugin('clock');
+const Clock = HomeNode.loadPlugin('clock');
 HomeNode.loadPlugin('virtuals');
 HomeNode.loadPlugin('say');
 
 // Clock
-HomeNode.interface({
+
+Clock.interface({
   id: 'time-machine',
-  plugin: 'clock',
   type: 'clock-service',
   name: 'Clock',
 });
 
-HomeNode.device({
+Clock.device({
   id: 'time',
   interface_id: 'time-machine',
   type: 'time',
@@ -26,47 +26,25 @@ HomeNode.device({
 });
 
 // Virtuals
-HomeNode.interface({
+const VI = HomeNode.interface({
   id: 'virtuals',
   plugin: 'virtuals',
   type: 'virtuals',
   name: 'Virtuals',
 });
 
-HomeNode.device({
+VI.device({
   id: 'fake-switch',
-  interface_id: 'virtuals',
   type: 'switch',
   name: 'My Fake Switch',
 });
 
 // Say
-HomeNode.device({
+VI.device({
   id: 'say',
   type: 'say',
   name: 'Mac Say',
 });
-
-// Spotify
-// HomeNode.interface({
-//   id: 'spotify',
-//   plugin: 'spotify',
-//   type: 'spotify-api',
-//   name: 'Spotify',
-//   config: {
-//     client_id: 'a15c487a68434422bb9ece8e6f22639b',
-//     client_secret: '25bfd77cd2ff44688a611d1f9f6cd2f8',
-//     redirect_uri: 'http://walshhome.getmyip.com:8888/callback',
-//     access_token:
-// 'BQBkxrRN68S-IYL9EsKUATQOmdbVFzpFBn8GGtrclm6LDGclaUaV7jfhCU7ZGbDqZVdSOLM5ENALAaRdxvepmTNeyqKcvmHNi6cfM1M7NhQupUcmhlhPsOwJiZl9Ejp2c5ZpiDcSLI9XdI6DOBehzkQvgfvIUHhxz9dOfwTYUNiTNzUr-XBtNvM8wLqnkqMsDNdxKVSYe8q1EutFJk8S0TTtaBh4XLC38o8s7xiq2E9NyDN6xTCY74UEfSQCwXftKcMNJ0wla9x-I_OcLkIPMmAxAQ',
-// refresh_token: 'AQBjtH4n4sJaemnQ6gjG6UUhOb7LMhGQasOn_ihDSvRYm98ffK1dgIM16BIeJd5YNhnxkqs2X-oHi5pB423C34WJmfIPuLLlXmTzFkrc9HeXvbKjgDRCJmZx31uf1kcCCsY8gA', }, });
-
-// HomeNode.device({
-//   id: 'spotify-justin',
-//   interface_id: 'spotify',
-//   type: 'spotify-account',
-//   name: 'Justin\'s Spotify',
-// });
 
 HomeNode.automation({
   id: 'turn-on-lights',
