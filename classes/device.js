@@ -10,12 +10,12 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
   this.type = instanceConfig.type;
   this.interface_id = instanceConfig.interface_id;
   this.name = instanceConfig.name;
-  this.interface = HomeNode.getInterface(this.interface_id);
   this.startup = deviceConfig.startup || noop;
   this.polling = deviceConfig.polling || {};
   this.shutdown = deviceConfig.shutdown || noop;
   this.afterTraitChange = deviceConfig.afterTraitChange || noop;
   this.handleTraitChange = deviceConfig.handleTraitChange || noopPromise;
+  this.interface = (this.interface_id ? HomeNode.getInterface(this.interface_id) : null);
 
   this.logger = new Logger();
   this.logger.addPrefix(`Device (${this.id}):`);

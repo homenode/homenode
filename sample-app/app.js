@@ -43,7 +43,6 @@ HomeNode.device({
 // Say
 HomeNode.device({
   id: 'say',
-  interface_id: 'robot',
   type: 'say',
   name: 'Mac Say',
 });
@@ -94,8 +93,6 @@ HomeNode.automation({
     // Do stuff
   },
 });
-
-// HomeNode.integrations.homekit.cleanup(); // Hard sync
 
 HomeNode.tree();
 

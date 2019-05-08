@@ -22,7 +22,16 @@ const HomeNode = module.exports = {
     automations: {},
   },
 
-  // Holds all created instances of things by id
+  // Holds a map of all registered plugins/interfaces/devices/traits/events/etc
+  systemMap: {},
+
+  // Holds a map of all instances of plugins/interfaces/devices
+  instanceMap: {},
+
+  /*
+  Instances
+  - Holds all created instances of things by id
+   */
   instances: {
     plugins: {},
     interfaces: {},
@@ -30,11 +39,21 @@ const HomeNode = module.exports = {
     automations: {},
   },
 
-  // Holds a map of all registered plugins/interfaces/devices/traits/events/etc
-  systemMap: {},
+  registerInstance(type, id, reference) {
+    if (!this.instances[type]) {
+      throw new Error(`ERROR: Unable to register an instance of unknown type: ${type}`);
+    }
 
-  // Holds a map of all instances of plugins/interfaces/devices
-  instanceMap: {},
+    if (this.instances[type][id]) {
+      throw new Error(`ERROR: Unable to register instance of a (${type}) with a duplicate id (${id})`);
+    }
+
+    if (!reference) {
+      throw new Error(`ERROR: Unable to register instance of a (${type}) with a id (${id}), reference to instance is missing`);
+    }
+
+    this.instances[type][id] = reference;
+  },
 
   /*
   Plugins
@@ -61,12 +80,20 @@ const HomeNode = module.exports = {
 
   createPlugin: (type) => {
     const pluginModule = HomeNode.types.plugins[type];
-    const pluginWrapper = new Plugin(HomeNode, type);
-    const pluginInstance = pluginModule.call(pluginWrapper);
+    const pluginInstance = new Plugin(HomeNode, type);
+    pluginModule.call(pluginInstance);
 
-    HomeNode.instances.plugins[type] = pluginInstance;
+    HomeNode.registerInstance('plugins', type, pluginInstance);
 
     HomeNode.instanceMap[`plugin:${type}`] = {};
+  },
+
+  getPlugin: (id) => {
+    if (!HomeNode.instances.plugins[id]) {
+      throw new Error(`ERROR: Unable to find plugin id (${id}) in getPlugin()`);
+    }
+
+    return HomeNode.instances.plugins[id];
   },
 
   /*
@@ -136,7 +163,7 @@ const HomeNode = module.exports = {
       const interfaceConfig = HomeNode.types.interfaces[type];
       const interfaceInstance = new Interface(HomeNode, interfaceConfig, instanceConfig);
 
-      HomeNode.instances.interfaces[id] = interfaceInstance;
+      HomeNode.registerInstance('interfaces', id, interfaceInstance);
 
       HomeNode.instanceMap[`plugin:${interfaceConfig.plugin}`][`interface:${id}`] = {};
 
@@ -144,6 +171,10 @@ const HomeNode = module.exports = {
   },
 
   getInterface: (id) => {
+    if (!HomeNode.instances.interfaces[id]) {
+      throw new Error(`ERROR: Unable to find interface id (${id}) in getInterface()`);
+    }
+
     return HomeNode.instances.interfaces[id];
   },
 
@@ -197,11 +228,11 @@ const HomeNode = module.exports = {
     const keys = Object.keys(config);
     const required = [
       'id',
-      'interface_id',
       'type',
       'name',
     ];
     const optional = [
+      'interface_id',
       'config',
     ];
 
@@ -218,7 +249,11 @@ const HomeNode = module.exports = {
       const deviceConfig = HomeNode.types.devices[type];
       const deviceInstance = new Device(HomeNode, deviceConfig, instanceConfig);
 
-      HomeNode.instances.devices[id] = deviceInstance;
+      if (deviceConfig.interface && !instanceConfig.interface_id) {
+        throw new Error(`ERROR: Device interface is required on device (${id}) please add interface_id to .device() config`);
+      }
+
+      HomeNode.registerInstance('devices', id, deviceInstance);
 
       if (deviceConfig.interface) {
         HomeNode.instanceMap[`plugin:${deviceConfig.plugin}`][`interface:${instanceConfig.interface_id}`][`device:${id}`] = {};
@@ -229,6 +264,10 @@ const HomeNode = module.exports = {
   },
 
   getDevice: (id) => {
+    if (!HomeNode.instances.devices[id]) {
+      throw new Error(`ERROR: Unable to find device id (${id}) in getDevice()`);
+    }
+
     return HomeNode.instances.devices[id];
   },
 
@@ -264,6 +303,14 @@ const HomeNode = module.exports = {
 
       HomeNode.instanceMap[`automations:${id}`] = {};
     }
+  },
+
+  getAutomation: (id) => {
+    if (!HomeNode.instances.automations[id]) {
+      throw new Error(`ERROR: Unable to find automation id (${id}) in getAutomation()`);
+    }
+
+    return HomeNode.instances.automations[id];
   },
 
   start: () => {
