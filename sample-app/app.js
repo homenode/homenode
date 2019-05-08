@@ -4,13 +4,9 @@ HomeNode.setPluginPath('./plugins/');
 
 HomeNode.loadPlugin('clock');
 HomeNode.loadPlugin('virtuals');
+HomeNode.loadPlugin('say');
 
-// HomeNode.homekit({
-//   'pin': '123-23-456',
-//   autoClean: true,
-// });
-
-// Speakers
+// Clock
 HomeNode.interface({
   id: 'time-machine',
   plugin: 'clock',
@@ -29,6 +25,7 @@ HomeNode.device({
   },
 });
 
+// Virtuals
 HomeNode.interface({
   id: 'virtuals',
   plugin: 'virtuals',
@@ -43,70 +40,73 @@ HomeNode.device({
   name: 'My Fake Switch',
 });
 
-// Automatically turn lights on, when motion is detected
-HomeNode.automation({
-  id: 'turn-on-lights', // Used for tracking/logging/external triggering
-  debounce: 2, // Secs - Built in debouncer for multiple calls to trigger(); Trigger will be called when secs have elapsed without more triggers.
-  startup() {
-    // HomeNode.getDevice('front-door-ring-doorbell').onEvent('ring', () => {
-    //   this.trigger();
-    // });
-    //
-    // HomeNode.getDevice('front-door-ring-doorbell').onEvent('motion', () => {
-    //   const lightPower = HomeNode.getDevice('front-door-soffit-lights').getTrait('power');
-    //   const isOn = lightPower.value;
-    //   const now = Math.floor(Date.now() / 1000);
-    //   const secsAgoChanged = now - lightPower.lastChanged;
-    //
-    //   // Only trigger if the light is off, and it didn't just change
-    //   if (!isOn && secsAgoChanged > 15) {
-    //     this.trigger();
-    //   }
-    //
-    // });
-    setTimeout(() => {
-      this.trigger();
-    }, 4000);
-  },
-  trigger() {
-    //HomeNode.getDevice('front-door-soffit-lights').setTrait('power', true);
-  },
+// Say
+HomeNode.interface({
+  id: 'robot',
+  plugin: 'say',
+  type: 'say',
+  name: 'Mac Say',
 });
 
-// For Debugging
-//HomeNode.getAutomation('turn-on-lights').trigger();
+HomeNode.device({
+  id: 'say',
+  interface_id: 'robot',
+  type: 'say',
+  name: 'Mac Say',
+});
+
+// Spotify
+// HomeNode.interface({
+//   id: 'spotify',
+//   plugin: 'spotify',
+//   type: 'spotify-api',
+//   name: 'Spotify',
+//   config: {
+//     client_id: 'a15c487a68434422bb9ece8e6f22639b',
+//     client_secret: '25bfd77cd2ff44688a611d1f9f6cd2f8',
+//     redirect_uri: 'http://walshhome.getmyip.com:8888/callback',
+//     access_token:
+// 'BQBkxrRN68S-IYL9EsKUATQOmdbVFzpFBn8GGtrclm6LDGclaUaV7jfhCU7ZGbDqZVdSOLM5ENALAaRdxvepmTNeyqKcvmHNi6cfM1M7NhQupUcmhlhPsOwJiZl9Ejp2c5ZpiDcSLI9XdI6DOBehzkQvgfvIUHhxz9dOfwTYUNiTNzUr-XBtNvM8wLqnkqMsDNdxKVSYe8q1EutFJk8S0TTtaBh4XLC38o8s7xiq2E9NyDN6xTCY74UEfSQCwXftKcMNJ0wla9x-I_OcLkIPMmAxAQ',
+// refresh_token: 'AQBjtH4n4sJaemnQ6gjG6UUhOb7LMhGQasOn_ihDSvRYm98ffK1dgIM16BIeJd5YNhnxkqs2X-oHi5pB423C34WJmfIPuLLlXmTzFkrc9HeXvbKjgDRCJmZx31uf1kcCCsY8gA', }, });
+
+// HomeNode.device({
+//   id: 'spotify-justin',
+//   interface_id: 'spotify',
+//   type: 'spotify-account',
+//   name: 'Justin\'s Spotify',
+// });
+
+HomeNode.automation({
+  id: 'turn-on-lights',
+  throttle: 2,
+  startup() {
+    setTimeout(() => {
+      this.trigger();
+    }, 1000);
+  },
+  trigger() {
+    // Do stuff
+  },
+});
 
 // Automatically turn lights off after 15 mins
 HomeNode.automation({
   id: 'turn-off-lights',
   startup() {
     HomeNode.getDevice('time').onTraitChange('time', (new_value, old_value) => {
-      //console.log('Automation startup: trait changed on time', new_value, old_value);
-      //this.trigger();
+      // Nothing
     });
   },
   trigger() {
-    //console.log("TRIGGERED");
+    // Do stuff
   },
 });
 
 // HomeNode.integrations.homekit.cleanup(); // Hard sync
 
-// HomeNode.scene({
-//   id: 'movie-time',
-//   start: () => {
-//
-//   },
-//   stop: () => {
-//
-//   },
-// });
-
 HomeNode.tree();
 
 HomeNode.start().then(() => {
-  //console.log('After Startup Traits', HomeNode.getDevice('time').traits);
-
   const Time = HomeNode.getDevice('time');
 
   Time.onTraitChange('time', (newTrait, oldTrait) => {
@@ -128,5 +128,4 @@ HomeNode.start().then(() => {
   const powerTrait = fakeSwitch.getTrait('power');
 
   fakeSwitch.setTrait('power', !powerTrait.value);
-
 });

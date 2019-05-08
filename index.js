@@ -238,7 +238,7 @@ const HomeNode = module.exports = {
     ];
     const optional = [
       'startup',
-      'debounce',
+      'throttle',
     ];
 
     Validator.validateKeys(name, keys, required, optional);
@@ -380,9 +380,9 @@ const HomeNode = module.exports = {
     SysLogger.log(`Plugins Base Path: ${HomeNode.pluginBasePath}`);
 
     SysLogger.log('System Map **************************************');
-    SysLogger.log(JSON.stringify(HomeNode.systemMap, undefined, 2));
+    SysLogger.log(HomeNode.systemMap);
 
     SysLogger.log('Instance Map ************************************');
-    SysLogger.log(JSON.stringify(HomeNode.instanceMap, undefined, 2));
+    SysLogger.log(HomeNode.instanceMap);
   },
 };

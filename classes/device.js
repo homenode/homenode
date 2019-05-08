@@ -24,7 +24,6 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
 
   /*
   Config
-  TODO: This is gross. And just barely qualifies as validation.
    */
   const userProvidedConfig = instanceConfig.config || {};
   const deviceProvidedConfig = deviceConfig.config || {};
