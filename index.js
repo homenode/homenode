@@ -319,19 +319,30 @@ const HomeNode = module.exports = {
     SysLogger.log('Datastore restore complete.');
 
     SysLogger.log('Restoring device traits...');
-    await Promise.all(Object.values(HomeNode.instances.devices).map((device) => device.restoreTraits()));
+    await Promise.all(Object.values(HomeNode.instances.devices).map((device) => {
+      SysLogger.log(`Restoring device traits for: ${device.id}`);
+      return device.restoreTraits();
+    }));
     SysLogger.log('Device traits restored.');
 
     SysLogger.log('Starting Interfaces...');
-    await Promise.all(Object.values(HomeNode.instances.interfaces).map((interfaceInstance) => interfaceInstance.startup()));
+    await Promise.all(Object.values(HomeNode.instances.interfaces).map((interfaceInstance) => {
+      SysLogger.log(`Starting interface: ${interfaceInstance.id}`);
+      return interfaceInstance.startup();
+    }));
     SysLogger.log('Interfaces startup complete.');
 
     SysLogger.log('Starting Devices...');
-    await Promise.all(Object.values(HomeNode.instances.devices).map((device) => device.startup()));
+    await Promise.all(Object.values(HomeNode.instances.devices).map((device) => {
+      SysLogger.log(`Starting device: ${device.id}`);
+      return device.startup();
+    }));
     SysLogger.log('Devices startup complete.');
 
     SysLogger.log('Starting polling on devices...');
     await Promise.all(Object.values(HomeNode.instances.devices).map((device) => Promise.all(Object.entries(device.polling).map(async ([pollId, poll]) => {
+      SysLogger.log(`Registering polling (${pollId}) on device (${device.id})`);
+
       setInterval(() => device.runPoll(pollId), poll.secs * 1000);
 
       if (poll.runAtStartup) {
@@ -341,7 +352,10 @@ const HomeNode = module.exports = {
     SysLogger.log('Devices polling setup complete.');
 
     SysLogger.log('Starting automations...');
-    await Promise.all(Object.values(HomeNode.instances.automations).map((automation) => automation.startup()));
+    await Promise.all(Object.values(HomeNode.instances.automations).map((automation) => {
+      SysLogger.log(`Starting automation: ${automation.id}`);
+      return automation.startup();
+    }));
     SysLogger.log('Automations started.');
   },
 
