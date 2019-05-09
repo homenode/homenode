@@ -57,9 +57,14 @@ HomeNode.automation({
 
 HomeNode.tree();
 
-HomeNode.start().then(() => {
-  // These are samples. Real automation code should be placed in HomeNode.automation()
+const boot = async () => {
+  await HomeNode.start();
+
   const time = HomeNode.getDevice('time');
+
+  time.onTraitChange('time', (newTrait, oldTrait) => {
+    // Do Something
+  });
 
   time.setTrait('solarNoon', '10:15 pm');
 
@@ -70,12 +75,12 @@ HomeNode.start().then(() => {
   const fakeSwitch = HomeNode.getDevice('fake-switch');
 
   fakeSwitch.onTraitChange('power', (newT, oldT) => {
-    // Do Something...
+    // Do Something
   });
 
-  // Fake activity
-  setTimeout(() => {
-    fakeSwitch.setTrait('power', !fakeSwitch.getTrait('power'));
-  }, 6000);
+  const powerTrait = fakeSwitch.getTrait('power');
 
-});
+  fakeSwitch.setTrait('power', !powerTrait.value);
+};
+
+boot();

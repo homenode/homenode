@@ -120,16 +120,14 @@ const HomeNode = module.exports = {
     ];
 
     Validator.validateKeys(name, keys, required, optional);
-
-    return true;
   },
 
   registerInterface: (config) => {
-    if (HomeNode.validateInterface(config)) {
+    HomeNode.validateInterface(config);
+
       HomeNode.types.interfaces[config.type] = config;
 
       HomeNode.systemMap[`plugin:${config.plugin}`][`interface:${config.type}`] = {};
-    }
   },
 
   validateInterfaceInstance: (config) => {
@@ -147,12 +145,11 @@ const HomeNode = module.exports = {
     ];
 
     Validator.validateKeys(name, keys, required, optional);
-
-    return true;
   },
 
   interface: (instanceConfig) => {
-    if (HomeNode.validateInterfaceInstance(instanceConfig)) {
+    HomeNode.validateInterfaceInstance(instanceConfig);
+
       if (!HomeNode.types.plugins[instanceConfig.plugin]) {
         throw new Error(`ERROR: Plugin (${instanceConfig.plugin}) is not loaded.`);
       }
@@ -172,7 +169,6 @@ const HomeNode = module.exports = {
       HomeNode.instanceMap[`plugin:${interfaceConfig.plugin}`][`interface:${id}`] = {};
 
       return interfaceInstance;
-    }
   },
 
   getInterface: (id) => {
@@ -211,12 +207,11 @@ const HomeNode = module.exports = {
     ];
 
     Validator.validateKeys(name, keys, required, optional);
-
-    return true;
   },
 
   registerDevice: (config) => {
-    if (HomeNode.validateDevice(config)) {
+    HomeNode.validateDevice(config);
+
       HomeNode.types.devices[config.type] = config;
 
       if (config.interface) {
@@ -228,7 +223,6 @@ const HomeNode = module.exports = {
       } else {
         HomeNode.systemMap[`plugin:${config.plugin}`][`device:${config.type}`] = {};
       }
-    }
   },
 
   validateDeviceInstance: (config) => {
@@ -247,12 +241,11 @@ const HomeNode = module.exports = {
     ];
 
     Validator.validateKeys(name, keys, required, optional);
-
-    return true;
   },
 
   device: (instanceConfig) => {
-    if (HomeNode.validateDeviceInstance(instanceConfig)) {
+    HomeNode.validateDeviceInstance(instanceConfig);
+
       // Create a instance of the interface
       const id = instanceConfig.id;
       const type = instanceConfig.type;
@@ -272,7 +265,6 @@ const HomeNode = module.exports = {
       }
 
       return deviceInstance;
-    }
   },
 
   getDevice: (id) => {
@@ -301,12 +293,11 @@ const HomeNode = module.exports = {
     ];
 
     Validator.validateKeys(name, keys, required, optional);
-
-    return true;
   },
 
   automation: (instanceConfig) => {
-    if (HomeNode.validateAutomationInstance(instanceConfig)) {
+    HomeNode.validateAutomationInstance(instanceConfig);
+
       // Create a instance of the automation
       const id = instanceConfig.id;
       const automationInstance = new Automation(HomeNode, instanceConfig);
@@ -314,7 +305,6 @@ const HomeNode = module.exports = {
       HomeNode.instances.automations[id] = automationInstance;
 
       HomeNode.instanceMap[`automations:${id}`] = {};
-    }
   },
 
   getAutomation: (id) => {
@@ -325,117 +315,52 @@ const HomeNode = module.exports = {
     return HomeNode.instances.automations[id];
   },
 
-  start: () => {
+  start: async () => {
     SysLogger.log('Starting up...');
 
-    let startupSequence = Promise.resolve();
-
-    // Restore Datastore
-    startupSequence = startupSequence.then(() => {
       SysLogger.log('Restoring datastore...');
-    });
-
-    startupSequence = startupSequence.then(() => {
-      return Datastore.startup();
-    });
-
-    startupSequence = startupSequence.then(() => {
+    await Datastore.startup();
       SysLogger.log('Datastore restore complete.');
-    });
 
-    // Restore Device Traits
-    startupSequence = startupSequence.then(() => {
       SysLogger.log('Restoring device traits...');
-    });
-
-    startupSequence = startupSequence.then(() => {
-      _.each(HomeNode.instances.devices, (device) => {
-        device.restoreTraits();
-      });
-    });
-
-    startupSequence = startupSequence.then(() => {
+    await Promise.all(Object.values(HomeNode.instances.devices).map((device) => {
+      SysLogger.log(`Restoring device traits for: ${device.id}`);
+      return device.restoreTraits();
+    }));
       SysLogger.log('Device traits restored.');
-    });
 
-    // Start Interfaces
-    startupSequence = startupSequence.then(() => {
       SysLogger.log('Starting Interfaces...');
-    });
-
-    startupSequence = _.reduce(HomeNode.instances.interfaces, (promiseChain, instance, id) => {
-      return promiseChain.then(() => {
-        SysLogger.log(`Starting interface: ${id}`);
-        return instance.startup();
-      });
-    }, startupSequence);
-
-    startupSequence = startupSequence.then(() => {
+    await Promise.all(Object.values(HomeNode.instances.interfaces).map((interfaceInstance) => {
+      SysLogger.log(`Starting interface: ${interfaceInstance.id}`);
+      return interfaceInstance.startup();
+    }));
       SysLogger.log('Interfaces startup complete.');
-    });
 
-    // Start Devices
-    startupSequence = startupSequence.then(() => {
       SysLogger.log('Starting Devices...');
-    });
-
-    startupSequence = _.reduce(HomeNode.instances.devices, (promiseChain, instance, id) => {
-      return promiseChain.then(() => {
-        SysLogger.log(`Starting device: ${id}`);
-        return instance.startup();
-      });
-    }, startupSequence);
-
-    startupSequence = startupSequence.then(() => {
+    await Promise.all(Object.values(HomeNode.instances.devices).map((device) => {
+      SysLogger.log(`Starting device: ${device.id}`);
+      return device.startup();
+    }));
       SysLogger.log('Devices startup complete.');
-    });
 
-    // Start polling devices
-    startupSequence = startupSequence.then(() => {
       SysLogger.log('Starting polling on devices...');
-    });
+    await Promise.all(Object.values(HomeNode.instances.devices).map((device) => Promise.all(Object.entries(device.polling).map(async ([pollId, poll]) => {
+      SysLogger.log(`Registering polling (${pollId}) on device (${device.id})`);
 
-    startupSequence = _.reduce(HomeNode.instances.devices, (promiseChain, instance, deviceId) => {
-      // Step into polling on each device
-      return promiseChain.then(() => {
-        return _.reduce(instance.polling, (promiseChain, poll, pollId) => {
-          return promiseChain.then(() => {
-            SysLogger.log(`Registering polling (${pollId}) on device (${deviceId})`);
+      setInterval(() => device.runPoll(pollId), poll.secs * 1000);
 
-            // Register poll
-            setInterval(() => {
-              instance.runPoll(pollId);
-            }, poll.secs * 1000);
-
-            // Optionally run at startup
             if (poll.runAtStartup) {
-              return instance.runPoll(pollId);
+        await device.runPoll(pollId);
             }
-          });
-        }, promiseChain);
-      });
-    }, startupSequence);
-
-    startupSequence = startupSequence.then(() => {
+    }))));
       SysLogger.log('Devices polling setup complete.');
-    });
 
-    startupSequence = startupSequence.then(() => {
       SysLogger.log('Starting automations...');
-    });
-
-    startupSequence = startupSequence.then(() => {
-      _.each(HomeNode.instances.automations, (automation, id) => {
-        SysLogger.log(`Starting automation: ${id}`);
-        automation.startup();
-      });
-    });
-
-    startupSequence = startupSequence.then(() => {
+    await Promise.all(Object.values(HomeNode.instances.automations).map((automation) => {
+      SysLogger.log(`Starting automation: ${automation.id}`);
+      return automation.startup();
+    }));
       SysLogger.log('Automations started.');
-    });
-
-    return startupSequence;
   },
 
   stop: () => {
