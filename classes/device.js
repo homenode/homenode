@@ -44,7 +44,7 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
   Validator.validateKeys(`Device: ${this.id}`, userProvidedConfigKeys, configGroups.required, configGroups.optional);
 
   this.config = _.reduce((deviceConfig.config || {}), (computedConfig, propertySettings, propertyKey) => {
-    computedConfig[propertyKey] = userProvidedConfig[propertyKey] || propertySettings['default'] || null;
+    computedConfig[propertyKey] = userProvidedConfig[propertyKey] || propertySettings.default || null;
     return computedConfig;
   }, {});
 
@@ -82,9 +82,7 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
     });
   };
 
-  this.getDatastoreTraitId = (traitId) => {
-    return `${this.interface_id}:${this.id}:${traitId}`;
-  };
+  this.getDatastoreTraitId = (traitId) => `${this.interface_id}:${this.id}:${traitId}`;
 
   this.getOrInsertTrait = (traitId, defaultValue) => {
     const dbId = this.getDatastoreTraitId(traitId);
@@ -99,13 +97,15 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
 
   // Trys to handle the traitChange() and if successful then calls syncTrait() to capture the new
   // value.
-  this.setTrait = (id, value) => {
-    return this.handleTraitChange(id, value).then(() => {
-      this.logger.debug(`setTrait: (${id}) to (${value})`);
-      this.syncTrait(id, value);
-    }).catch((err) => {
+  this.setTrait = async (id, value) => {
+    try {
+      await this.handleTraitChange(id, value);
+    } catch (err) {
       this.logger.error(`setTrait: (${id}) to (${value}) failed. Response: `, err);
-    });
+    }
+
+    this.logger.debug(`setTrait: (${id}) to (${value})`);
+    this.syncTrait(id, value);
   };
 
   // Updates our local trait datastore, and triggers events
@@ -125,9 +125,7 @@ module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig
     }
   };
 
-  this.getTrait = (id) => {
-    return this.traits[id] || null;
-  };
+  this.getTrait = (id) => this.traits[id] || null;
 
   /*
   Events

@@ -74,26 +74,30 @@ HomeNode.automation({
 
 HomeNode.tree();
 
-HomeNode.start().then(() => {
+const boot = async () => {
+  await HomeNode.start();
+
   const Time = HomeNode.getDevice('time');
 
   Time.onTraitChange('time', (newTrait, oldTrait) => {
-    //console.log('time:', newTrait.value, oldTrait.value);
+    // console.log('time:', newTrait.value, oldTrait.value);
   });
 
   Time.setTrait('solarNoon', '10:15 pm');
 
   Time.onEvent('solarNoon', () => {
-    //console.log('event: solarNoon!');
+    // console.log('event: solarNoon!');
   });
 
   const fakeSwitch = HomeNode.getDevice('fake-switch');
 
   fakeSwitch.onTraitChange('power', (newT, oldT) => {
-    //console.log('SWITCH CHANGE!', newT, oldT);
+    // console.log('SWITCH CHANGE!', newT, oldT);
   });
 
   const powerTrait = fakeSwitch.getTrait('power');
 
   fakeSwitch.setTrait('power', !powerTrait.value);
-});
+};
+
+boot();
