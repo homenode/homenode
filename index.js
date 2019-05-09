@@ -259,6 +259,8 @@ const HomeNode = module.exports = {
     } else {
       HomeNode.instanceMap[`plugin:${deviceConfig.plugin}`][`device:${id}`] = {};
     }
+
+    return deviceInstance;
   },
 
   getDevice: (id) => {
