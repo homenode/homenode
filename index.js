@@ -125,9 +125,9 @@ const HomeNode = module.exports = {
   registerInterface: (config) => {
     HomeNode.validateInterface(config);
 
-      HomeNode.types.interfaces[config.type] = config;
+    HomeNode.types.interfaces[config.type] = config;
 
-      HomeNode.systemMap[`plugin:${config.plugin}`][`interface:${config.type}`] = {};
+    HomeNode.systemMap[`plugin:${config.plugin}`][`interface:${config.type}`] = {};
   },
 
   validateInterfaceInstance: (config) => {
@@ -150,25 +150,25 @@ const HomeNode = module.exports = {
   interface: (instanceConfig) => {
     HomeNode.validateInterfaceInstance(instanceConfig);
 
-      if (!HomeNode.types.plugins[instanceConfig.plugin]) {
-        throw new Error(`ERROR: Plugin (${instanceConfig.plugin}) is not loaded.`);
-      }
+    if (!HomeNode.types.plugins[instanceConfig.plugin]) {
+      throw new Error(`ERROR: Plugin (${instanceConfig.plugin}) is not loaded.`);
+    }
 
-      if (!HomeNode.types.interfaces[instanceConfig.type]) {
-        throw new Error(`ERROR: Interface type (${instanceConfig.type}) is not loaded.`);
-      }
+    if (!HomeNode.types.interfaces[instanceConfig.type]) {
+      throw new Error(`ERROR: Interface type (${instanceConfig.type}) is not loaded.`);
+    }
 
-      // Create a instance of the interface
-      const id = instanceConfig.id;
-      const type = instanceConfig.type;
-      const interfaceConfig = HomeNode.types.interfaces[type];
-      const interfaceInstance = new Interface(HomeNode, interfaceConfig, instanceConfig);
+    // Create a instance of the interface
+    const id = instanceConfig.id;
+    const type = instanceConfig.type;
+    const interfaceConfig = HomeNode.types.interfaces[type];
+    const interfaceInstance = new Interface(HomeNode, interfaceConfig, instanceConfig);
 
-      HomeNode.registerInstance('interfaces', id, interfaceInstance);
+    HomeNode.registerInstance('interfaces', id, interfaceInstance);
 
-      HomeNode.instanceMap[`plugin:${interfaceConfig.plugin}`][`interface:${id}`] = {};
+    HomeNode.instanceMap[`plugin:${interfaceConfig.plugin}`][`interface:${id}`] = {};
 
-      return interfaceInstance;
+    return interfaceInstance;
   },
 
   getInterface: (id) => {
@@ -212,17 +212,17 @@ const HomeNode = module.exports = {
   registerDevice: (config) => {
     HomeNode.validateDevice(config);
 
-      HomeNode.types.devices[config.type] = config;
+    HomeNode.types.devices[config.type] = config;
 
-      if (config.interface) {
-        if (!HomeNode.types.interfaces[config.interface]) {
-          throw new Error(`ERROR: Interface type (${config.interface}) is not loaded.`);
-        }
-
-        HomeNode.systemMap[`plugin:${config.plugin}`][`interface:${config.interface}`][`device:${config.type}`] = {};
-      } else {
-        HomeNode.systemMap[`plugin:${config.plugin}`][`device:${config.type}`] = {};
+    if (config.interface) {
+      if (!HomeNode.types.interfaces[config.interface]) {
+        throw new Error(`ERROR: Interface type (${config.interface}) is not loaded.`);
       }
+
+      HomeNode.systemMap[`plugin:${config.plugin}`][`interface:${config.interface}`][`device:${config.type}`] = {};
+    } else {
+      HomeNode.systemMap[`plugin:${config.plugin}`][`device:${config.type}`] = {};
+    }
   },
 
   validateDeviceInstance: (config) => {
@@ -246,25 +246,25 @@ const HomeNode = module.exports = {
   device: (instanceConfig) => {
     HomeNode.validateDeviceInstance(instanceConfig);
 
-      // Create a instance of the interface
-      const id = instanceConfig.id;
-      const type = instanceConfig.type;
-      const deviceConfig = HomeNode.types.devices[type];
-      const deviceInstance = new Device(HomeNode, deviceConfig, instanceConfig);
+    // Create a instance of the interface
+    const id = instanceConfig.id;
+    const type = instanceConfig.type;
+    const deviceConfig = HomeNode.types.devices[type];
+    const deviceInstance = new Device(HomeNode, deviceConfig, instanceConfig);
 
-      if (deviceConfig.interface && !instanceConfig.interface_id) {
-        throw new Error(`ERROR: Device interface is required on device (${id}) please add interface_id to .device() config`);
-      }
+    if (deviceConfig.interface && !instanceConfig.interface_id) {
+      throw new Error(`ERROR: Device interface is required on device (${id}) please add interface_id to .device() config`);
+    }
 
-      HomeNode.registerInstance('devices', id, deviceInstance);
+    HomeNode.registerInstance('devices', id, deviceInstance);
 
-      if (deviceConfig.interface) {
-        HomeNode.instanceMap[`plugin:${deviceConfig.plugin}`][`interface:${instanceConfig.interface_id}`][`device:${id}`] = {};
-      } else {
-        HomeNode.instanceMap[`plugin:${deviceConfig.plugin}`][`device:${id}`] = {};
-      }
+    if (deviceConfig.interface) {
+      HomeNode.instanceMap[`plugin:${deviceConfig.plugin}`][`interface:${instanceConfig.interface_id}`][`device:${id}`] = {};
+    } else {
+      HomeNode.instanceMap[`plugin:${deviceConfig.plugin}`][`device:${id}`] = {};
+    }
 
-      return deviceInstance;
+    return deviceInstance;
   },
 
   getDevice: (id) => {
@@ -298,13 +298,13 @@ const HomeNode = module.exports = {
   automation: (instanceConfig) => {
     HomeNode.validateAutomationInstance(instanceConfig);
 
-      // Create a instance of the automation
-      const id = instanceConfig.id;
-      const automationInstance = new Automation(HomeNode, instanceConfig);
+    // Create a instance of the automation
+    const id = instanceConfig.id;
+    const automationInstance = new Automation(HomeNode, instanceConfig);
 
-      HomeNode.instances.automations[id] = automationInstance;
+    HomeNode.instances.automations[id] = automationInstance;
 
-      HomeNode.instanceMap[`automations:${id}`] = {};
+    HomeNode.instanceMap[`automations:${id}`] = {};
   },
 
   getAutomation: (id) => {
@@ -318,49 +318,49 @@ const HomeNode = module.exports = {
   start: async () => {
     SysLogger.log('Starting up...');
 
-      SysLogger.log('Restoring datastore...');
+    SysLogger.log('Restoring datastore...');
     await Datastore.startup();
-      SysLogger.log('Datastore restore complete.');
+    SysLogger.log('Datastore restore complete.');
 
-      SysLogger.log('Restoring device traits...');
+    SysLogger.log('Restoring device traits...');
     await Promise.all(Object.values(HomeNode.instances.devices).map((device) => {
       SysLogger.log(`Restoring device traits for: ${device.id}`);
       return device.restoreTraits();
     }));
-      SysLogger.log('Device traits restored.');
+    SysLogger.log('Device traits restored.');
 
-      SysLogger.log('Starting Interfaces...');
+    SysLogger.log('Starting Interfaces...');
     await Promise.all(Object.values(HomeNode.instances.interfaces).map((interfaceInstance) => {
       SysLogger.log(`Starting interface: ${interfaceInstance.id}`);
       return interfaceInstance.startup();
     }));
-      SysLogger.log('Interfaces startup complete.');
+    SysLogger.log('Interfaces startup complete.');
 
-      SysLogger.log('Starting Devices...');
+    SysLogger.log('Starting Devices...');
     await Promise.all(Object.values(HomeNode.instances.devices).map((device) => {
       SysLogger.log(`Starting device: ${device.id}`);
       return device.startup();
     }));
-      SysLogger.log('Devices startup complete.');
+    SysLogger.log('Devices startup complete.');
 
-      SysLogger.log('Starting polling on devices...');
+    SysLogger.log('Starting polling on devices...');
     await Promise.all(Object.values(HomeNode.instances.devices).map((device) => Promise.all(Object.entries(device.polling).map(async ([pollId, poll]) => {
       SysLogger.log(`Registering polling (${pollId}) on device (${device.id})`);
 
       setInterval(() => device.runPoll(pollId), poll.secs * 1000);
 
-            if (poll.runAtStartup) {
+      if (poll.runAtStartup) {
         await device.runPoll(pollId);
-            }
+      }
     }))));
-      SysLogger.log('Devices polling setup complete.');
+    SysLogger.log('Devices polling setup complete.');
 
-      SysLogger.log('Starting automations...');
+    SysLogger.log('Starting automations...');
     await Promise.all(Object.values(HomeNode.instances.automations).map((automation) => {
       SysLogger.log(`Starting automation: ${automation.id}`);
       return automation.startup();
     }));
-      SysLogger.log('Automations started.');
+    SysLogger.log('Automations started.');
   },
 
   stop: () => {
