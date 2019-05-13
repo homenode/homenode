@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const Validator = require('./lib/validator.js');
+const Schema = require('./lib/schemas.js');
 const Datastore = require('./lib/datastore.js');
 const Logger = require('./lib/logger.js');
 
@@ -107,19 +107,8 @@ const HomeNode = module.exports = {
   validateInterface: (config) => {
     const type = config.type || 'Unknown Interface Type';
     const name = `Interface: ${type}`;
-    const keys = Object.keys(config);
-    const required = [
-      'type',
-      'plugin',
-    ];
-    const optional = [
-      'config',
-      'startup',
-      'shutdown',
-      'afterAllDeviceStartup',
-    ];
 
-    Validator.validateKeys(name, keys, required, optional);
+    Schema.validate(name, 'interfaceBase', config);
   },
 
   registerInterface: (config) => {
@@ -133,18 +122,8 @@ const HomeNode = module.exports = {
   validateInterfaceInstance: (config) => {
     const id = config.id || 'Unknown Interface ID';
     const name = `Interface Instance: ${id}`;
-    const keys = Object.keys(config);
-    const required = [
-      'id',
-      'plugin',
-      'type',
-      'name',
-    ];
-    const optional = [
-      'config',
-    ];
 
-    Validator.validateKeys(name, keys, required, optional);
+    Schema.validate(name, 'interfaceInstance', config);
   },
 
   interface: (instanceConfig) => {
@@ -183,30 +162,11 @@ const HomeNode = module.exports = {
   Devices
    */
 
-  validateDevice: (deviceConfig) => {
-    const type = deviceConfig.type || 'Unknown Interface Type';
+  validateDevice: (config) => {
+    const type = config.type || 'Unknown Interface Type';
     const name = `Interface: ${type}`;
 
-    // Root Keys
-    const keys = Object.keys(deviceConfig);
-    const required = [
-      'type',
-      'plugin',
-    ];
-    const optional = [
-      'interface',
-      'config',
-      'startup',
-      'polling',
-      'shutdown',
-      'traits',
-      'handleTraitChange',
-      'afterTraitChange',
-      'traitMapping',
-      'afterAllDeviceStartup',
-    ];
-
-    Validator.validateKeys(name, keys, required, optional);
+    Schema.validate(name, 'deviceBase', config);
   },
 
   registerDevice: (config) => {
@@ -228,19 +188,8 @@ const HomeNode = module.exports = {
   validateDeviceInstance: (config) => {
     const id = config.id || 'Unknown Device ID';
     const name = `Device Instance: ${id}`;
-    const keys = Object.keys(config);
-    const required = [
-      'id',
-      'plugin',
-      'type',
-      'name',
-    ];
-    const optional = [
-      'interface_id',
-      'config',
-    ];
 
-    Validator.validateKeys(name, keys, required, optional);
+    Schema.validate(name, 'deviceInstance', config);
   },
 
   device: (instanceConfig) => {
@@ -282,17 +231,8 @@ const HomeNode = module.exports = {
   validateAutomationInstance: (config) => {
     const id = config.id || 'Unknown Automation ID';
     const name = `Automation Instance: ${id}`;
-    const keys = Object.keys(config);
-    const required = [
-      'id',
-      'trigger',
-    ];
-    const optional = [
-      'startup',
-      'throttle',
-    ];
 
-    Validator.validateKeys(name, keys, required, optional);
+    Schema.validate(name, 'automationInstance', config);
   },
 
   automation: (instanceConfig) => {

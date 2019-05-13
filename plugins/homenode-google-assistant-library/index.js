@@ -9,7 +9,7 @@ module.exports = function GoogleAssistant() {
     type: 'google-assistant',
     config: {
       host: {
-        type: 'text',
+        type: 'string',
         required: true,
       },
       port: {
