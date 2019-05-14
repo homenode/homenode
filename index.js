@@ -1,8 +1,9 @@
-const _ = require('lodash');
-
 const Schema = require('./lib/schemas.js');
 const Datastore = require('./lib/datastore.js');
 const Logger = require('./lib/logger.js');
+
+const deviceSchemaGenerator = require('./lib/schema_generators/device_instance.js');
+const interfaceSchemaGenerator = require('./lib/schema_generators/interface_instance.js');
 
 const SysLogger = new Logger();
 SysLogger.addPrefix('System:', 'system');
@@ -108,34 +109,48 @@ const HomeNode = module.exports = {
     const type = config.type || 'Unknown Interface Type';
     const name = `Interface: ${type}`;
 
-    Schema.validate(name, 'interfaceBase', config);
+    Schema.validate(name, 'interfaceClass', config);
   },
 
   registerInterface: (config) => {
     HomeNode.validateInterface(config);
+
+    // Register a custom schema for validating instances
+    const instanceSchemaName = `${config.plugin}:${config.type}`;
+    const instanceSchema = interfaceSchemaGenerator(config);
+    Schema.addSchema(instanceSchemaName, instanceSchema);
+    config.schemaName = instanceSchemaName;
 
     HomeNode.types.interfaces[config.type] = config;
 
     HomeNode.systemMap[`plugin:${config.plugin}`][`interface:${config.type}`] = {};
   },
 
-  validateInterfaceInstance: (config) => {
-    const id = config.id || 'Unknown Interface ID';
-    const name = `Interface Instance: ${id}`;
+  validateInterfaceInstance: (instanceConfig) => {
+    if (!instanceConfig.id) {
+      throw new Error(`ERROR: Interface is missing required 'id' property`);
+    }
 
-    Schema.validate(name, 'interfaceInstance', config);
+    if (!instanceConfig.type) {
+      throw new Error(`ERROR: Interface (${instanceConfig.id}) is missing required 'type' property`);
+    }
+
+    if (!HomeNode.types.plugins[instanceConfig.plugin]) {
+      throw new Error(`ERROR: Interface (${instanceConfig.id}) defined a plugin (${instanceConfig.plugin}) that is not loaded.`);
+    }
+
+    if (!HomeNode.types.interfaces[instanceConfig.type]) {
+      throw new Error(`ERROR: Interface (${instanceConfig.id}) type (${instanceConfig.type}) is not loaded.`);
+    }
+
+    const interfaceConfig = HomeNode.types.interfaces[instanceConfig.type];
+    const instanceSchemaName = interfaceConfig.schemaName;
+
+    Schema.validate(`Interface Instance: ${instanceConfig.id}`, instanceSchemaName, instanceConfig);
   },
 
   interface: (instanceConfig) => {
     HomeNode.validateInterfaceInstance(instanceConfig);
-
-    if (!HomeNode.types.plugins[instanceConfig.plugin]) {
-      throw new Error(`ERROR: Plugin (${instanceConfig.plugin}) is not loaded.`);
-    }
-
-    if (!HomeNode.types.interfaces[instanceConfig.type]) {
-      throw new Error(`ERROR: Interface type (${instanceConfig.type}) is not loaded.`);
-    }
 
     // Create a instance of the interface
     const id = instanceConfig.id;
@@ -163,14 +178,21 @@ const HomeNode = module.exports = {
    */
 
   validateDevice: (config) => {
-    const type = config.type || 'Unknown Interface Type';
-    const name = `Interface: ${type}`;
+    const type = config.type || 'Unknown Device Type';
+    const name = `Device: ${type}`;
 
-    Schema.validate(name, 'deviceBase', config);
+    Schema.validate(name, 'deviceClass', config);
   },
 
   registerDevice: (config) => {
     HomeNode.validateDevice(config);
+
+    // Register a custom schema for validating instances
+    const interfaceName = (config.interface ? config.interface : 'no-interface');
+    const instanceSchemaName = `${config.plugin}:${interfaceName}:${config.type}`;
+    const instanceSchema = deviceSchemaGenerator(config);
+    Schema.addSchema(instanceSchemaName, instanceSchema);
+    config.schemaName = instanceSchemaName;
 
     HomeNode.types.devices[config.type] = config;
 
@@ -185,25 +207,35 @@ const HomeNode = module.exports = {
     }
   },
 
-  validateDeviceInstance: (config) => {
-    const id = config.id || 'Unknown Device ID';
-    const name = `Device Instance: ${id}`;
+  validateDeviceInstance: (instanceConfig) => {
+    if (!instanceConfig.id) {
+      throw new Error(`ERROR: Device is missing required 'id' property`);
+    }
 
-    Schema.validate(name, 'deviceInstance', config);
+    if (!instanceConfig.type) {
+      throw new Error(`ERROR: Device (${instanceConfig.id}) is missing required 'type' property`);
+    }
+
+    if (!HomeNode.types.plugins[instanceConfig.plugin]) {
+      throw new Error(`ERROR: Device (${instanceConfig.id}) defined a plugin (${instanceConfig.plugin}) that is not loaded.`);
+    }
+
+    if (!HomeNode.types.devices[instanceConfig.type]) {
+      throw new Error(`ERROR: Device (${instanceConfig.id}) type (${instanceConfig.type}) is not loaded.`);
+    }
+
+    const deviceConfig = HomeNode.types.devices[instanceConfig.type];
+    const instanceSchemaName = deviceConfig.schemaName;
+
+    Schema.validate(`Device Instance: ${instanceConfig.id}`, instanceSchemaName, instanceConfig);
   },
 
   device: (instanceConfig) => {
     HomeNode.validateDeviceInstance(instanceConfig);
 
-    // Create a instance of the interface
     const id = instanceConfig.id;
-    const type = instanceConfig.type;
-    const deviceConfig = HomeNode.types.devices[type];
+    const deviceConfig = HomeNode.types.devices[instanceConfig.type];
     const deviceInstance = new Device(HomeNode, deviceConfig, instanceConfig);
-
-    if (deviceConfig.interface && !instanceConfig.interface_id) {
-      throw new Error(`ERROR: Device interface is required on device (${id}) please add interface_id to .device() config`);
-    }
 
     HomeNode.registerInstance('devices', id, deviceInstance);
 
@@ -228,21 +260,17 @@ const HomeNode = module.exports = {
   Automations
    */
 
-  validateAutomationInstance: (config) => {
-    const id = config.id || 'Unknown Automation ID';
-    const name = `Automation Instance: ${id}`;
+  validateAutomationInstance: (instanceConfig) => {
+    const logName = `Automation Instance: ${instanceConfig.id || 'unknown'}`;
 
-    Schema.validate(name, 'automationInstance', config);
+    Schema.validate(logName, 'automation', instanceConfig);
   },
 
   automation: (instanceConfig) => {
     HomeNode.validateAutomationInstance(instanceConfig);
 
-    // Create a instance of the automation
     const id = instanceConfig.id;
-    const automationInstance = new Automation(HomeNode, instanceConfig);
-
-    HomeNode.instances.automations[id] = automationInstance;
+    HomeNode.instances.automations[id] = new Automation(HomeNode, instanceConfig);
 
     HomeNode.instanceMap[`automations:${id}`] = {};
   },
@@ -304,7 +332,7 @@ const HomeNode = module.exports = {
   },
 
   stop: () => {
-
+    // TODO: Graceful shutdown.
   },
 
   tree: () => {

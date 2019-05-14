@@ -31,11 +31,11 @@ module.exports = function Clock() {
     type: 'time',
     config: {
       lat: {
-        type: 'float',
+        type: 'number',
         required: true,
       },
       long: {
-        type: 'float',
+        type: 'number',
         required: true,
       },
     },

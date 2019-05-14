@@ -4,7 +4,7 @@ const Validator = require('../lib/validator.js');
 const Logger = require('../lib/logger.js');
 const { noop } = require('../lib/utils.js');
 
-module.exports = function interfaceBaseClass(HomeNode, interfaceConfig, instanceConfig) {
+module.exports = function interfaceClassClass(HomeNode, interfaceConfig, instanceConfig) {
   this.id = instanceConfig.id;
   this.plugin = instanceConfig.plugin;
   this.type = instanceConfig.type;

@@ -5,7 +5,7 @@ const Datastore = require('../lib/datastore.js');
 const Logger = require('../lib/logger.js');
 const { safeLogString, noop, noopPromise } = require('../lib/utils.js');
 
-module.exports = function deviceBaseClass(HomeNode, deviceConfig, instanceConfig) {
+module.exports = function deviceClassClass(HomeNode, deviceConfig, instanceConfig) {
   this.id = instanceConfig.id;
   this.plugin = instanceConfig.plugin;
   this.type = instanceConfig.type;
