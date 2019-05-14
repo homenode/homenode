@@ -1,6 +1,5 @@
 const _ = require('lodash');
 const events = require('events');
-const Validator = require('../lib/validator.js');
 const Datastore = require('../lib/datastore.js');
 const Logger = require('../lib/logger.js');
 const { safeLogString, noop, noopPromise } = require('../lib/utils.js');
@@ -28,22 +27,9 @@ module.exports = function deviceClassClass(HomeNode, deviceConfig, instanceConfi
    */
   const userProvidedConfig = instanceConfig.config || {};
   const deviceProvidedConfig = deviceConfig.config || {};
-  const userProvidedConfigKeys = Object.keys(userProvidedConfig);
-  const configGroups = _.reduce(deviceProvidedConfig, (list, propertySettings, propertyKey) => {
-    if (propertySettings.required) {
-      list.required.push(propertyKey);
-    } else {
-      list.optional.push(propertyKey);
-    }
-    return list;
-  }, {
-    required: [],
-    optional: [],
-  });
 
-  Validator.validateKeys(`Device: ${this.id}`, userProvidedConfigKeys, configGroups.required, configGroups.optional);
-
-  this.config = _.reduce((deviceConfig.config || {}), (computedConfig, propertySettings, propertyKey) => {
+  // Fill in defaults
+  this.config = _.reduce(deviceProvidedConfig, (computedConfig, propertySettings, propertyKey) => {
     computedConfig[propertyKey] = userProvidedConfig[propertyKey] || propertySettings.default || null;
     return computedConfig;
   }, {});

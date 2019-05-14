@@ -1,6 +1,5 @@
 const _ = require('lodash');
 
-const Validator = require('../lib/validator.js');
 const Logger = require('../lib/logger.js');
 const { noop } = require('../lib/utils.js');
 
@@ -9,7 +8,6 @@ module.exports = function interfaceClassClass(HomeNode, interfaceConfig, instanc
   this.plugin = instanceConfig.plugin;
   this.type = instanceConfig.type;
   this.name = instanceConfig.name;
-  this.config = instanceConfig.config || {};
 
   this.logger = new Logger();
   this.logger.addPrefix(`Interface (${this.id}):`);
@@ -18,24 +16,11 @@ module.exports = function interfaceClassClass(HomeNode, interfaceConfig, instanc
   Config
    */
   const userProvidedConfig = instanceConfig.config || {};
-  const deviceProvidedConfig = interfaceConfig.config || {};
-  const userProvidedConfigKeys = Object.keys(userProvidedConfig);
-  const configGroups = _.reduce(deviceProvidedConfig, (list, propertySettings, propertyKey) => {
-    if (propertySettings.required) {
-      list.required.push(propertyKey);
-    } else {
-      list.optional.push(propertyKey);
-    }
-    return list;
-  }, {
-    required: [],
-    optional: [],
-  });
+  const interfaceProvidedConfig = interfaceConfig.config || {};
 
-  Validator.validateKeys(`Interface: ${this.id}`, userProvidedConfigKeys, configGroups.required, configGroups.optional);
-
-  this.config = _.reduce((interfaceConfig.config || {}), (computedConfig, propertySettings, propertyKey) => {
-    computedConfig[propertyKey] = userProvidedConfig[propertyKey] || propertySettings['default'] || null;
+  // Fill in defaults
+  this.config = _.reduce(interfaceProvidedConfig, (computedConfig, propertySettings, propertyKey) => {
+    computedConfig[propertyKey] = userProvidedConfig[propertyKey] || propertySettings.default || null;
     return computedConfig;
   }, {});
 
