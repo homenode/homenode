@@ -2,7 +2,7 @@ const _ = require('lodash');
 
 const Logger = require('../lib/logger.js');
 
-module.exports = function pluginBaseClass(HomeNode, pluginType) {
+module.exports = function pluginClass(HomeNode, pluginType) {
 
   this.registerInterface = (config) => {
     config.plugin = pluginType;

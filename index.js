@@ -188,7 +188,7 @@ const HomeNode = module.exports = {
     HomeNode.validateDevice(config);
 
     // Register a custom schema for validating instances
-    const interfaceName = (config.interface ? config.interface : 'no-interface');
+    const interfaceName = config.interface || 'no-interface';
     const instanceSchemaName = `${config.plugin}:${interfaceName}:${config.type}`;
     const instanceSchema = deviceSchemaGenerator(config);
     Schema.addSchema(instanceSchemaName, instanceSchema);

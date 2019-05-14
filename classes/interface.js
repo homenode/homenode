@@ -3,7 +3,7 @@ const _ = require('lodash');
 const Logger = require('../lib/logger.js');
 const { noop } = require('../lib/utils.js');
 
-module.exports = function interfaceClassClass(HomeNode, interfaceConfig, instanceConfig) {
+module.exports = function interfaceClass(HomeNode, interfaceConfig, instanceConfig) {
   this.id = instanceConfig.id;
   this.plugin = instanceConfig.plugin;
   this.type = instanceConfig.type;
