@@ -1,18 +1,18 @@
-const Schema = require('./lib/schemas.js');
-const Datastore = require('./lib/datastore.js');
-const Logger = require('./lib/logger.js');
+const Schema = require('./app/lib/schemas.js');
+const Datastore = require('./app/lib/datastore.js');
+const Logger = require('./app/lib/logger.js');
 
-const deviceSchemaGenerator = require('./lib/schema_generators/device_instance.js');
-const interfaceSchemaGenerator = require('./lib/schema_generators/interface_instance.js');
+const deviceSchemaGenerator = require('./app/schema_generators/device_instance.js');
+const interfaceSchemaGenerator = require('./app/schema_generators/interface_instance.js');
 
 const SysLogger = new Logger();
 SysLogger.addPrefix('System:', 'system');
 
 // const HomeNodeDevice = require('./classes/device.js');
-const Plugin = require('./classes/plugin.js');
-const Interface = require('./classes/interface.js');
-const Device = require('./classes/device.js');
-const Automation = require('./classes/automation.js');
+const Plugin = require('./app/classes/plugin.js');
+const Interface = require('./app/classes/interface.js');
+const Device = require('./app/classes/device.js');
+const Automation = require('./app/classes/automation.js');
 
 const HomeNode = module.exports = {
   // Holds references to all types that are registered

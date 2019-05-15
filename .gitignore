@@ -118,5 +118,5 @@ fabric.properties
 .nyc_output
 
 homenode.db
-integrations/persist/
+app/integrations/persist/
 my-home/

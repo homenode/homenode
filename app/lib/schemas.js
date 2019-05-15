@@ -3,9 +3,9 @@ const Ajv = require('ajv');
 const betterAjvErrors = require('better-ajv-errors');
 
 // Built in Schemas
-const deviceClass = require('./schemas/deviceClass.js');
-const interfaceClass = require('./schemas/interfaceClass.js');
-const automation = require('./schemas/automation.js');
+const deviceClass = require('../schemas/deviceClass.js');
+const interfaceClass = require('../schemas/interfaceClass.js');
+const automation = require('../schemas/automation.js');
 
 // Create main class for AJV
 const ajv = new Ajv({
