@@ -31,7 +31,6 @@ Say.device({
 
 HomeNode.automation({
   id: 'turn-on-lights',
-  throttle: 2,
   startup() {
     setTimeout(() => {
       this.trigger();

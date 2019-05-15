@@ -6,7 +6,7 @@ module.exports = function Virtuals() {
     type: 'switch',
     traits: {
       power: {
-        type: 'bool',
+        type: 'boolean',
         default: false,
       },
     },
@@ -26,7 +26,7 @@ module.exports = function Virtuals() {
     type: 'dimmer',
     traits: {
       power: {
-        type: 'bool',
+        type: 'boolean',
         default: false,
       },
       level: {
