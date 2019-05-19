@@ -1,0 +1,132 @@
+const Datastore = require('./lib/datastore.js');
+const Registry = require('./lib/registry.js');
+const Logger = require('./lib/logger.js');
+const {
+  validateAutomationInstance,
+} = require('./lib/validator.js');
+
+const logger = new Logger();
+logger.addPrefix('System:', 'system');
+
+const Plugin = require('./classes/plugin.js');
+const Automation = require('./classes/automation.js');
+
+let pluginBasePath = '';
+
+/**
+ * HomeNode public module
+ */
+const HomeNode = module.exports = {
+  /**
+   * Getters
+   */
+  getPlugin: Registry.getPlugin,
+  getDevice: Registry.getDevice,
+  getInterface: Registry.getInterface,
+  getAutomation: Registry.getAutomation,
+
+  /**
+   * Plugins
+   */
+  setPluginPath(basePath) {
+    pluginBasePath = basePath;
+  },
+
+  loadPlugin(pluginSlug) {
+    const pluginPath = `${pluginBasePath}homenode-${pluginSlug}`;
+    logger.log(`Loading Plugin: ${pluginPath}`);
+
+    const pluginModule = require(pluginPath);
+    const pluginInstance = new Plugin(pluginSlug);
+    pluginModule.call(pluginInstance);
+
+    Registry.register('plugin', pluginSlug, pluginInstance);
+
+    return pluginInstance;
+  },
+
+  /**
+   * Automations
+   */
+  automation: (instanceConfig) => {
+    validateAutomationInstance(instanceConfig);
+
+    const id = instanceConfig.id;
+    const automationInstance = new Automation(HomeNode, instanceConfig);
+
+    Registry.register('automation', id, automationInstance);
+  },
+
+  /**
+   * Startup & Shutdown
+   */
+  start: async () => {
+    const devices = Registry.getType('device');
+    const interfaces = Registry.getType('interface');
+    const automations = Registry.getType('automation');
+
+    logger.log('Starting up...');
+
+    logger.log('Restoring datastore...');
+    await Datastore.startup();
+    logger.log('Datastore restore complete.');
+
+    logger.log('Restoring device traits...');
+    await Promise.all(Object.values(devices).map((device) => {
+      logger.log(`Restoring device traits for: ${device.id}`);
+      return device.restoreTraits();
+    }));
+    logger.log('Device traits restored.');
+
+    logger.log('Starting Interfaces...');
+    await Promise.all(Object.values(interfaces).map((interfaceInstance) => {
+      logger.log(`Starting interface: ${interfaceInstance.id}`);
+      return interfaceInstance.startup();
+    }));
+    logger.log('Interfaces startup complete.');
+
+    logger.log('Starting Devices...');
+    await Promise.all(Object.values(devices).map((device) => {
+      logger.log(`Starting device: ${device.id}`);
+      return device.startup();
+    }));
+    logger.log('Devices startup complete.');
+
+    logger.log('Starting polling on devices...');
+    await Promise.all(Object.values(devices).map((device) => Promise.all(Object.entries(device.polling).map(async ([pollId, poll]) => {
+      logger.log(`Registering polling (${pollId}) on device (${device.id})`);
+
+      setInterval(() => device.runPoll(pollId), poll.secs * 1000);
+
+      if (poll.runAtStartup) {
+        await device.runPoll(pollId);
+      }
+    }))));
+    logger.log('Devices polling setup complete.');
+
+    logger.log('Starting automations...');
+    await Promise.all(Object.values(automations).map((automation) => {
+      logger.log(`Starting automation: ${automation.id}`);
+      return automation.startup();
+    }));
+    logger.log('Automations started.');
+  },
+
+  stop: () => {
+    // TODO: Graceful shutdown.
+  },
+
+  /**
+   * Debugging
+   */
+  tree: () => {
+    logger.log('HomeNode Debug Tree *****************************');
+    logger.log(`Plugins Base Path: ${HomeNode.pluginBasePath}`);
+
+    logger.log('System Map **************************************');
+    logger.log(HomeNode.systemMap);
+
+    logger.log('Instance Map ************************************');
+    logger.log(HomeNode.instanceMap);
+  },
+};

@@ -12,7 +12,11 @@ module.exports = function automationClass(HomeNode, instanceConfig) {
 
   this.trigger = () => {
     this.logger.log('Triggered!');
-    instanceConfig.trigger();
+    try {
+      instanceConfig.trigger();
+    } catch (e) {
+      this.logger.error('Crashed with error: ', e, e.stack || '');
+    }
   };
 
   return this;

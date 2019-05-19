@@ -1,10 +1,11 @@
 const _ = require('lodash');
 const events = require('events');
 const Datastore = require('../lib/datastore.js');
+const Registry = require('../lib/registry.js');
 const Logger = require('../lib/logger.js');
 const { safeLogString, noop, noopPromise } = require('../lib/utils.js');
 
-module.exports = function deviceClass(HomeNode, deviceConfig, instanceConfig) {
+module.exports = function deviceClass(deviceConfig, instanceConfig) {
   this.id = instanceConfig.id;
   this.plugin = instanceConfig.plugin;
   this.type = instanceConfig.type;
@@ -15,7 +16,7 @@ module.exports = function deviceClass(HomeNode, deviceConfig, instanceConfig) {
   this.shutdown = deviceConfig.shutdown || noop;
   this.afterTraitChange = deviceConfig.afterTraitChange || noop;
   this.handleTraitChange = deviceConfig.handleTraitChange || noopPromise;
-  this.interface = (this.interface_id ? HomeNode.getInterface(this.interface_id) : null);
+  this.interface = (this.interface_id ? Registry.getInterface(this.interface_id) : null);
 
   this.logger = new Logger();
   this.logger.addPrefix(`Device (${this.id}):`);
