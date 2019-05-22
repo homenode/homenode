@@ -120,13 +120,45 @@ const HomeNode = module.exports = {
    * Debugging
    */
   tree: () => {
-    logger.log('HomeNode Debug Tree *****************************');
-    logger.log(`Plugins Base Path: ${HomeNode.pluginBasePath}`);
+    const plugins = Registry.getType('plugin');
+    const pluginsMap = Object.entries(plugins);
 
-    logger.log('System Map **************************************');
-    logger.log(HomeNode.systemMap);
+    logger.log();
+    logger.log('HomeNode Plugins Map **************************************');
+    logger.log();
 
-    logger.log('Instance Map ************************************');
-    logger.log(HomeNode.instanceMap);
+    const pluginMap = pluginsMap.map(([pluginKey, pluginValue]) => {
+
+      const interfaceTypes = Object.entries(pluginValue.interfaceTypes);
+      const deviceTypes = Object.entries(pluginValue.deviceTypes);
+
+      return {
+        'plugin-key': pluginKey,
+        'interface-types': interfaceTypes.reduce((list, [interfaceKey, interfaceValue]) => {
+          list[interfaceKey] = {
+            config: interfaceValue.config,
+          };
+          return list;
+        }, {}),
+        'devices-types': deviceTypes.reduce((list, [deviceKey, deviceValue]) => {
+          list[deviceKey] = {
+            config: deviceValue.config || {},
+            traits: deviceValue.traits || {},
+          };
+
+          if (deviceValue.interface) {
+            list[deviceKey]['requires interface'] = deviceValue.interface;
+          }
+          return list;
+        }, {}),
+      };
+    });
+
+    logger.log(pluginMap);
+
+    logger.log();
+    logger.log('HomeNode Instance Map ************************************');
+
+    logger.log();
   },
 };
