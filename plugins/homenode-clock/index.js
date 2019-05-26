@@ -1,4 +1,4 @@
-const moment = require('moment');
+const moment = require('moment-timezone');
 const SolarCalc = require('solar-calc');
 
 const hourFormat = 'hh:mm a';
@@ -30,6 +30,10 @@ module.exports = function Clock() {
   this.registerDevice({
     type: 'time',
     config: {
+      timezone: {
+        type: 'string', // Must be a valid value from: http://momentjs.com/timezone/
+        required: true,
+      },
       lat: {
         type: 'number',
         required: true,
@@ -41,8 +45,9 @@ module.exports = function Clock() {
     },
     startup() {
       // Return promise
-      this.syncTrait('time', moment().format(hourFormat));
-      this.syncTrait('date', moment().format(dateFormat));
+      const tz = this.getConfig('timezone');
+      this.syncTrait('time', moment().tz(tz).format(hourFormat));
+      this.syncTrait('date', moment().tz(tz).format(dateFormat));
     },
     polling: {
       secTick: {
@@ -50,8 +55,9 @@ module.exports = function Clock() {
         secs: 1,
         silent: true,
         handler() {
-          this.syncTrait('time', moment().format(hourFormat));
-          this.syncTrait('date', moment().format(dateFormat));
+          const tz = this.getConfig('timezone');
+          this.syncTrait('time', moment().tz(tz).format(hourFormat));
+          this.syncTrait('date', moment().tz(tz).format(dateFormat));
         },
       },
       updateSolarCalc: {
