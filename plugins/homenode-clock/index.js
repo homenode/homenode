@@ -1,7 +1,7 @@
 const moment = require('moment-timezone');
 const SolarCalc = require('solar-calc');
 
-const hourFormat = 'hh:mm a';
+const hourFormat = 'h:mm a';
 const dateFormat = 'MMMM D, YYYY';
 const solarList = [
   'sunrise',
