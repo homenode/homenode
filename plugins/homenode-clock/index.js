@@ -65,7 +65,7 @@ module.exports = function Clock() {
         runAtStartup: true,
         secs: 60 * 60,
         handler() { // Has to be a real function, to get the correct 'this'
-          const date = this.getTrait('date').value;
+          const date = this.getTraitValue('date');
           const dateObject = new Date(date);
 
           if (!isValidDate(dateObject)) {
@@ -131,7 +131,7 @@ module.exports = function Clock() {
       // The time trait will change once a min.
       if (traitId === 'time') {
         solarList.forEach((prop) => {
-          const time = this.getTrait(prop).value;
+          const time = this.getTraitValue(prop);
           if (newTrait.value === time) {
             this.triggerEvent(prop);
           }
