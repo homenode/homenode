@@ -1,6 +1,6 @@
 const HomeNode = require('../index.js');
 
-HomeNode.setPluginPath('./plugins/');
+HomeNode.setPluginPath('../plugins/');
 
 const Clock = HomeNode.loadPlugin('clock');
 const Virtuals = HomeNode.loadPlugin('virtuals');
@@ -38,6 +38,7 @@ HomeNode.automation({
   },
   trigger() {
     // Do stuff
+    // boom; Test try/catch
   },
 });
 
