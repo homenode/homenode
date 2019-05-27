@@ -49,6 +49,7 @@ module.exports = function Clock() {
       this.syncTrait('time', moment().tz(tz).format(hourFormat));
       this.syncTrait('date', moment().tz(tz).format(dateFormat));
     },
+    events: solarList,
     polling: {
       secTick: {
         runAtStartup: true,
@@ -126,13 +127,6 @@ module.exports = function Clock() {
         history: false,
       },
     },
-    // handleTraitChange(traitId, newTrait, oldTrait) {
-    //   return new Promise((resolve, reject) => {
-    //     console.log('handleTraitChange', traitId, newTrait);
-    //     //resolve();
-    //     reject('boom');
-    //   });
-    // },
     afterTraitChange(traitId, newTrait, oldTrait) {
       // The time trait will change once a min.
       if (traitId === 'time') {

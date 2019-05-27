@@ -1,6 +1,9 @@
-const configSchema = require('./_config.js');
+const configMixin = require('./mixins/config.js');
+const pollingMixin = require('./mixins/polling.js');
+const traitsMixin = require('./mixins/traits.js');
+const eventsMixin = require('./mixins/events.js');
 
-module.exports = {
+const schema = {
   type: 'object',
   required: ['type', 'plugin'],
   additionalProperties: false,
@@ -15,6 +18,12 @@ module.exports = {
       type: 'string',
       const: 'function',
     },
-    config: configSchema,
   },
 };
+
+configMixin(schema);
+pollingMixin(schema);
+traitsMixin(schema);
+eventsMixin(schema);
+
+module.exports = schema;

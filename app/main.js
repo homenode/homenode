@@ -137,6 +137,9 @@ const HomeNode = module.exports = {
         'interface-types': interfaceTypes.reduce((list, [interfaceKey, interfaceValue]) => {
           list[interfaceKey] = {
             config: interfaceValue.config,
+            traits: interfaceValue.traits || {},
+            events: interfaceValue.events || [],
+            commands: Object.keys(interfaceValue.commands || {}),
           };
           return list;
         }, {}),
@@ -144,6 +147,8 @@ const HomeNode = module.exports = {
           list[deviceKey] = {
             config: deviceValue.config || {},
             traits: deviceValue.traits || {},
+            events: deviceValue.events || [],
+            commands: Object.keys(deviceValue.commands || {}),
           };
 
           if (deviceValue.interface) {

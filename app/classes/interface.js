@@ -1,43 +1,40 @@
-const _ = require('lodash');
-
-const Logger = require('../lib/logger.js');
 const { noop } = require('../lib/utils.js');
 
-module.exports = function interfaceClass(Plugin, interfaceConfig, instanceConfig) {
-  this.id = instanceConfig.id;
-  this.plugin = instanceConfig.plugin;
-  this.type = instanceConfig.type;
-  this.name = instanceConfig.name;
+const EventsMixin = require('./mixins/events.js');
+const TraitsMixin = require('./mixins/traits.js');
+const PollingMixin = require('./mixins/polling.js');
+const ConfigMixin = require('./mixins/config.js');
+const LoggingMixin = require('./mixins/logging.js');
+const CommandsMixin = require('./mixins/commands.js');
 
-  this.logger = new Logger();
-  this.logger.addPrefix(`Interface (${this.id}):`);
-
-  /*
-  Config
+module.exports = function interfaceClass(Plugin, structure, options) {
+  /**
+   * Structure is the definition of the device provided by the plugin
    */
-  const userProvidedConfig = instanceConfig.config || {};
-  const interfaceProvidedConfig = interfaceConfig.config || {};
+  this.structure = structure;
+  /**
+   * Options are the parameters pass to this instance by the user
+   */
+  this.options = options;
 
-  // Fill in defaults
-  this.config = _.reduce(interfaceProvidedConfig, (computedConfig, propertySettings, propertyKey) => {
-    computedConfig[propertyKey] = userProvidedConfig[propertyKey] || propertySettings.default || null;
-    return computedConfig;
-  }, {});
+  this.id = this.options.id;
+  this.plugin = this.options.plugin;
+  this.type = this.options.type;
+  this.name = this.options.name;
+  this.startup = this.structure.startup || noop;
+  this.shutdown = this.structure.shutdown || noop;
 
-  this.getConfig = (id) => {
-    if (!_.has(this.config, id)) {
-      throw new Error(`Unknown getConfig() key (${id})`);
-    }
-    return this.config[id];
-  };
+  LoggingMixin(this, 'Interface');
+  ConfigMixin(this);
+  PollingMixin(this);
+  TraitsMixin(this);
+  EventsMixin(this);
+  CommandsMixin(this);
 
-  this.startup = interfaceConfig.startup || noop;
-  this.shutdown = interfaceConfig.shutdown || noop;
-
-  this.device = (instanceConfig) => {
-    instanceConfig.plugin = this.plugin;
-    instanceConfig.interface_id = this.id;
-    return Plugin.device(instanceConfig);
+  this.device = (deviceConfig) => {
+    deviceConfig.plugin = this.plugin;
+    deviceConfig.interface_id = this.id;
+    return Plugin.device(deviceConfig);
   };
 
   return this;
