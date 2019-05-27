@@ -31,7 +31,7 @@ module.exports = function deviceClass(structure, options) {
   LoggingMixin(this, 'Device');
   ConfigMixin(this);
   PollingMixin(this);
-  TraitsMixin(this);
+  TraitsMixin(this, 'device');
   EventsMixin(this);
   CommandsMixin(this);
 

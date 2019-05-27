@@ -27,7 +27,7 @@ module.exports = function interfaceClass(Plugin, structure, options) {
   LoggingMixin(this, 'Interface');
   ConfigMixin(this);
   PollingMixin(this);
-  TraitsMixin(this);
+  TraitsMixin(this, 'interface');
   EventsMixin(this);
   CommandsMixin(this);
 

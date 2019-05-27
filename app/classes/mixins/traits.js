@@ -9,7 +9,7 @@ const { noop, noopPromise } = require('../../lib/utils.js');
  *
  * @param obj - Object instance that is being extended
  */
-module.exports = function TraitsMixin(obj) {
+module.exports = function TraitsMixin(obj, storagePrefix) {
   obj.afterTraitChange = obj.structure.afterTraitChange || noop;
   obj.handleTraitChange = obj.structure.handleTraitChange || noopPromise;
 
@@ -24,7 +24,7 @@ module.exports = function TraitsMixin(obj) {
     });
   };
 
-  obj.getDatastoreTraitId = (traitId) => `${obj.interface_id}:${obj.id}:${traitId}`;
+  obj.getDatastoreTraitId = (traitId) => `${storagePrefix}:${obj.id}:${traitId}`;
 
   obj.getOrInsertTrait = (traitId, defaultValue) => {
     const dbId = obj.getDatastoreTraitId(traitId);
