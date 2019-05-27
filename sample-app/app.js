@@ -12,6 +12,7 @@ Clock.device({
   type: 'time',
   name: 'Time',
   config: {
+    timezone: 'America/Chicago',
     lat: 46.891295,
     long: -100.834569,
   },
