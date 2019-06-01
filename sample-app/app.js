@@ -79,9 +79,11 @@ const boot = async () => {
     // Do Something
   });
 
-  const powerTrait = fakeSwitch.getTrait('power');
+  const powerTrait = fakeSwitch.getTraitValue('power');
 
-  fakeSwitch.setTrait('power', !powerTrait.value);
+  //fakeSwitch.setTrait('power', !powerTrait);
+
+  fakeSwitch.command('on');
 };
 
 boot();

@@ -10,6 +10,22 @@ module.exports = function Virtuals() {
         default: false,
       },
     },
+    events: [
+      'on',
+      'off',
+    ],
+    commands: {
+      on: {
+        handler() {
+          this.setTrait('power', true);
+        },
+      },
+      off: {
+        handler() {
+          this.setTrait('power', false);
+        },
+      },
+    },
     afterTraitChange(traitId, newTrait, oldTrait) {
       if (newTrait.value === true && oldTrait.value === false) {
         this.triggerEvent('on');

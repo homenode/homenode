@@ -33,7 +33,7 @@ const convertFunctions = (data) => {
   return _.reduce(data, (accumulator, value, key) => {
     if (typeof value === 'function') {
       accumulator[key] = 'function';
-    } else if (typeof value === 'object') {
+    } else if (_.isObject(value) && !_.isArray(value)) {
       accumulator[key] = convertFunctions(value);
     } else {
       accumulator[key] = value;

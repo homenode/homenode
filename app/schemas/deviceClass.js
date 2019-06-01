@@ -1,7 +1,10 @@
-const validTypesEnum = require('./_types.js');
-const configSchema = require('./_config.js');
+const configMixin = require('./mixins/config.js');
+const pollingMixin = require('./mixins/polling.js');
+const traitsMixin = require('./mixins/traits.js');
+const eventsMixin = require('./mixins/events.js');
+const commandsMixin = require('./mixins/commands.js');
 
-module.exports = {
+const schema = {
   type: 'object',
   required: ['type', 'plugin'],
   additionalProperties: false,
@@ -19,55 +22,13 @@ module.exports = {
       type: 'string',
       const: 'function',
     },
-    config: configSchema,
-    polling: {
-      type: 'object',
-      additionalProperties: {
-        type: 'object',
-        required: ['secs', 'handler'],
-        additionalProperties: false,
-        properties: {
-          runAtStartup: {
-            type: 'boolean',
-          },
-          secs: {
-            type: 'integer',
-          },
-          silent: {
-            type: 'boolean',
-          },
-          handler: {
-            type: 'string',
-            const: 'function',
-          },
-        },
-      },
-    },
-    traits: {
-      type: 'object',
-      additionalProperties: {
-        type: 'object',
-        required: ['type'],
-        additionalProperties: false,
-        properties: {
-          type: {
-            type: 'string',
-            enum: validTypesEnum,
-          },
-          history: {
-            type: 'boolean',
-          },
-          default: {},
-        },
-      },
-    },
-    handleTraitChange: {
-      type: 'string',
-      const: 'function',
-    },
-    afterTraitChange: {
-      type: 'string',
-      const: 'function',
-    },
   },
 };
+
+configMixin(schema);
+pollingMixin(schema);
+traitsMixin(schema);
+eventsMixin(schema);
+commandsMixin(schema);
+
+module.exports = schema;
