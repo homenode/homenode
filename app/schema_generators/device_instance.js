@@ -35,6 +35,8 @@ module.exports = (deviceConfig) => {
 
   // Add optional config parameters
   if (deviceConfig.config) {
+    base.required.push('config');
+
     const baseConfigObject = base.properties.config;
     Object.entries(deviceConfig.config).forEach(([configKey, configValue]) => {
       if (configValue.required) {

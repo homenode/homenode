@@ -1,72 +1,13 @@
-module.exports = function Virtuals() {
-  /*
-  Virtual Switch
-   */
-  this.registerDevice({
-    type: 'switch',
-    traits: {
-      power: {
-        type: 'boolean',
-        default: false,
-      },
-    },
-    events: [
-      'on',
-      'off',
-    ],
-    commands: {
-      on: {
-        handler() {
-          this.setTrait('power', true);
-        },
-      },
-      off: {
-        handler() {
-          this.setTrait('power', false);
-        },
-      },
-    },
-    afterTraitChange(traitId, newTrait, oldTrait) {
-      if (newTrait.value === true && oldTrait.value === false) {
-        this.triggerEvent('on');
-      } else if (newTrait.value === false && oldTrait.value === true) {
-        this.triggerEvent('off');
-      }
-    },
-  });
+const Switch = require('./devices/switch.js');
+const LightDimmer = require('./devices/light-dimmer.js');
+const TV = require('./devices/tv.js');
+const Speaker = require('./devices/speaker.js');
+const AmpZone = require('./devices/amp-zone.js');
 
-  /*
-  Virtual Dimmer Switch
-   */
-  this.registerDevice({
-    type: 'dimmer',
-    traits: {
-      power: {
-        type: 'boolean',
-        default: false,
-      },
-      level: {
-        type: 'integer',
-        default: 0,
-      },
-    },
-    afterTraitChange(traitId, newTrait, oldTrait) {
-      switch (traitId) {
-        case 'power':
-          if (newTrait.value === true && oldTrait.value === false) {
-            this.triggerEvent('on');
-          } else if (newTrait.value === false && oldTrait.value === true) {
-            this.triggerEvent('off');
-          }
-          break;
-        case 'level':
-          if (newTrait.value === 0) {
-            this.setTrait('power', false);
-          } else if (newTrait.value > 0) {
-            this.setTrait('power', true);
-          }
-          break;
-      }
-    },
-  });
+module.exports = function Virtuals() {
+  this.registerDevice(Switch);
+  this.registerDevice(LightDimmer);
+  this.registerDevice(TV);
+  this.registerDevice(Speaker);
+  this.registerDevice(AmpZone);
 };

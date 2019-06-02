@@ -1,6 +1,9 @@
 const HomeNode = require('../index.js');
 
 HomeNode.setPluginPath('../plugins/');
+HomeNode.enableHomekit({
+  pincode: '429-42-927',
+});
 
 const Clock = HomeNode.loadPlugin('clock');
 const Virtuals = HomeNode.loadPlugin('virtuals');
@@ -19,9 +22,41 @@ Clock.device({
 });
 
 Virtuals.device({
+  id: 'fake-amp-zone',
+  type: 'amp-zone',
+  name: 'Fake Amp Zone',
+  config: {
+    input_1: 'Living Room',
+    input_2: 'Master Bedroom',
+    input_3: 'Master Bathroom',
+    input_4: 'Bonus Room',
+    input_5: 'Cast',
+    input_6: 'Kids Cast',
+  },
+});
+
+Virtuals.device({
+  id: 'fake-speaker',
+  type: 'speaker',
+  name: 'Fake Speaker',
+});
+
+Virtuals.device({
   id: 'fake-switch',
   type: 'switch',
-  name: 'My Fake Switch',
+  name: 'Fake Switch',
+});
+
+Virtuals.device({
+  id: 'fake-light-dimmer',
+  type: 'light-dimmer',
+  name: 'Fake Lightbulb',
+});
+
+Virtuals.device({
+  id: 'fake-tv',
+  type: 'tv',
+  name: 'Fake TV',
 });
 
 Say.device({
@@ -61,29 +96,31 @@ HomeNode.tree();
 const boot = async () => {
   await HomeNode.start();
 
-  const time = HomeNode.getDevice('time');
+  // const time = HomeNode.getDevice('time');
+  //
+  // time.onTraitChange('time', (newTrait, oldTrait) => {
+  //   // Do Something
+  // });
+  //
+  // time.setTrait('solarNoon', '10:15 pm');
+  //
+  // time.onEvent('solarNoon', () => {
+  //   // Do Something
+  // });
+  //
+  // const fakeSwitch = HomeNode.getDevice('fake-switch');
+  //
+  // fakeSwitch.onTraitChange('power', (newT, oldT) => {
+  //   // Do Something
+  // });
+  //
+  //
+  // fakeSwitch.command('on');
 
-  time.onTraitChange('time', (newTrait, oldTrait) => {
-    // Do Something
-  });
-
-  time.setTrait('solarNoon', '10:15 pm');
-
-  time.onEvent('solarNoon', () => {
-    // Do Something
-  });
-
-  const fakeSwitch = HomeNode.getDevice('fake-switch');
-
-  fakeSwitch.onTraitChange('power', (newT, oldT) => {
-    // Do Something
-  });
-
-  const powerTrait = fakeSwitch.getTraitValue('power');
-
-  //fakeSwitch.setTrait('power', !powerTrait);
-
-  fakeSwitch.command('on');
+  // setInterval(() => {
+  //   const powerTrait = fakeSwitch.getTraitValue('power');
+  //   fakeSwitch.setTrait('power', !powerTrait);
+  // }, 10000);
 };
 
 boot();

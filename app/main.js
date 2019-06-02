@@ -11,7 +11,10 @@ logger.addPrefix('System:', 'system');
 const Plugin = require('./classes/plugin.js');
 const Automation = require('./classes/automation.js');
 
+const Homekit = require('./integrations/homekit.js');
+
 let pluginBasePath = '';
+let homekitEnabled = false;
 
 /**
  * HomeNode public module
@@ -58,6 +61,15 @@ const HomeNode = module.exports = {
   },
 
   /**
+   * Integrations
+   */
+  enableHomekit: (options) => {
+    logger.log('Enabling homekit...', options);
+    homekitEnabled = true;
+    Homekit.config(options);
+  },
+
+  /**
    * Startup & Shutdown
    */
   start: async () => {
@@ -88,6 +100,12 @@ const HomeNode = module.exports = {
     logger.log('Starting Devices...');
     await Promise.all(Object.values(devices).map((device) => {
       logger.log(`Starting device: ${device.id}`);
+
+      // Add to homekit startup
+      if (device.homekit) {
+        Homekit.addDevice(device);
+      }
+
       return device.startup();
     }));
     logger.log('Devices startup complete.');
@@ -103,6 +121,12 @@ const HomeNode = module.exports = {
       }
     }))));
     logger.log('Devices polling setup complete.');
+
+    if (homekitEnabled) {
+      logger.log('Starting homekit...');
+      await Homekit.startup();
+      logger.log('Homekit started.');
+    }
 
     logger.log('Starting automations...');
     await Promise.all(Object.values(automations).map((automation) => {
