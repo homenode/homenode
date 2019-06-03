@@ -22,6 +22,10 @@ const schema = {
       type: 'string',
       const: 'function',
     },
+    homekit: {
+      type: 'string',
+      const: 'function',
+    },
   },
 };
 

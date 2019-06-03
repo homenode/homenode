@@ -120,3 +120,4 @@ fabric.properties
 homenode.db
 app/integrations/persist/
 my-home/
+persist

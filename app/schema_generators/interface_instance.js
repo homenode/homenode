@@ -31,6 +31,8 @@ module.exports = (interfaceConfig) => {
 
   // Add optional config parameters
   if (interfaceConfig.config) {
+    base.required.push('config');
+
     const baseConfigObject = base.properties.config;
     Object.entries(interfaceConfig.config).forEach(([configKey, configValue]) => {
       if (configValue.required) {

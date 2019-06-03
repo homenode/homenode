@@ -27,6 +27,7 @@ module.exports = function deviceClass(structure, options) {
   this.startup = this.structure.startup || noop;
   this.shutdown = this.structure.shutdown || noop;
   this.interface = (this.interface_id ? Registry.getInterface(this.interface_id) : null);
+  this.homekit = this.structure.homekit || false;
 
   LoggingMixin(this, 'Device');
   ConfigMixin(this);
