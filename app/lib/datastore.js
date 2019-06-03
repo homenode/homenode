@@ -19,7 +19,9 @@ module.exports = {
       autoloadCallback: () => {
         if (!db.getCollection('traits')) {
           console.log('Create traits table');
-          db.addCollection('traits');
+          db.addCollection('traits', {
+            autoupdate: true
+          });
         }
 
         resolve();

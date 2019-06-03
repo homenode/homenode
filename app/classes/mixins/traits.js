@@ -68,7 +68,14 @@ module.exports = function TraitsMixin(obj, storagePrefix) {
   };
 
   obj.getTrait = (id) => obj.traits[id] && obj.traits[id] || null;
-  obj.getTraitValue = (id) => obj.traits[id] && obj.traits[id].value || null;
+  obj.getTraitValue = (id) => {
+    // This check will support falsey values, like 0, '', false, etc.
+    if (obj.traits[id] && obj.traits[id].value !== undefined) {
+      return obj.traits[id].value;
+    }
+
+    return null;
+  };
   obj.getTraitLastChanged = (id) => obj.traits[id] && obj.traits[id].lastChanged || null;
   obj.getTraitLastUpdated = (id) => obj.traits[id] && obj.traits[id].lastupdated || null;
 
