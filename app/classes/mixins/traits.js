@@ -42,12 +42,12 @@ module.exports = function TraitsMixin(obj, storagePrefix) {
   obj.setTrait = async (id, value) => {
     try {
       await obj.handleTraitChange(id, value);
+
+      obj.logger.debug(`setTrait: (${id}) to (${value})`);
+      obj.syncTrait(id, value);
     } catch (err) {
       obj.logger.error(`setTrait: (${id}) to (${value}) failed. Response: `, err);
     }
-
-    obj.logger.debug(`setTrait: (${id}) to (${value})`);
-    obj.syncTrait(id, value);
   };
 
   // Updates our local trait datastore, and triggers events

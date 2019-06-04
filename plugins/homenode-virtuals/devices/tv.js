@@ -35,10 +35,14 @@ module.exports = {
     },
   },
   afterTraitChange(traitId, newTrait, oldTrait) {
-    if (newTrait.value === true && oldTrait.value === false) {
-      this.triggerEvent('on');
-    } else if (newTrait.value === false && oldTrait.value === true) {
-      this.triggerEvent('off');
+    switch (traitId) {
+      case 'power':
+        if (newTrait.value === true && oldTrait.value === false) {
+          this.triggerEvent('on');
+        } else if (newTrait.value === false && oldTrait.value === true) {
+          this.triggerEvent('off');
+        }
+        break;
     }
   },
   homekit(accessory, HomeKit) {
