@@ -18,7 +18,7 @@ module.exports = function CommandsMixin(obj) {
     }
 
     if (payload !== undefined) {
-      obj.logger.log(`Command Triggered: (${name}) with payload (${safeLogString(payload)})`);
+      obj.logger.log(`Command Triggered: (${name}) with payload (${safeLogString(payload).trim()})`);
     } else {
       obj.logger.log(`Command Triggered: (${name})`);
     }

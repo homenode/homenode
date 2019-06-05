@@ -15,12 +15,12 @@ const schema = {
     plugin: {
       type: 'string',
     },
-    interface: {
-      type: 'string',
-    },
     startup: {
       type: 'string',
       const: 'function',
+    },
+    interface: {
+      type: 'string',
     },
     homekit: {
       type: 'string',

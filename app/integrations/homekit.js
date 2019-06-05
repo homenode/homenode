@@ -37,7 +37,7 @@ module.exports = {
     const bridge = new Bridge('HomeNode Bridge', uuid.generate('HomeNode Bridge'));
 
     bridge.on('identify', function(paired, callback) {
-      console.log('Node Bridge identify');
+      // console.log('Node Bridge identify');
       callback(); // success
     });
 

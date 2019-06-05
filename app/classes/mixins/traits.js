@@ -42,12 +42,12 @@ module.exports = function TraitsMixin(obj, storagePrefix) {
   obj.setTrait = async (id, value) => {
     try {
       await obj.handleTraitChange(id, value);
+
+      obj.logger.debug(`setTrait: (${id}) to (${value})`);
+      obj.syncTrait(id, value);
     } catch (err) {
       obj.logger.error(`setTrait: (${id}) to (${value}) failed. Response: `, err);
     }
-
-    obj.logger.debug(`setTrait: (${id}) to (${value})`);
-    obj.syncTrait(id, value);
   };
 
   // Updates our local trait datastore, and triggers events
@@ -68,7 +68,14 @@ module.exports = function TraitsMixin(obj, storagePrefix) {
   };
 
   obj.getTrait = (id) => obj.traits[id] && obj.traits[id] || null;
-  obj.getTraitValue = (id) => obj.traits[id] && obj.traits[id].value || null;
+  obj.getTraitValue = (id) => {
+    // This check will support falsey values, like 0, '', false, etc.
+    if (obj.traits[id] && obj.traits[id].value !== undefined) {
+      return obj.traits[id].value;
+    }
+
+    return null;
+  };
   obj.getTraitLastChanged = (id) => obj.traits[id] && obj.traits[id].lastChanged || null;
   obj.getTraitLastUpdated = (id) => obj.traits[id] && obj.traits[id].lastupdated || null;
 

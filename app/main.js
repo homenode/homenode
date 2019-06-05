@@ -64,7 +64,7 @@ const HomeNode = module.exports = {
    * Integrations
    */
   enableHomekit: (options) => {
-    logger.log('Enabling homekit...', options);
+    logger.log('Enabling homekit...');
     homekitEnabled = true;
     Homekit.config(options);
   },
