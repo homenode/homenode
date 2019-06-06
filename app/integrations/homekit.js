@@ -22,7 +22,10 @@ logger.addPrefix('Homekit:');
 
 module.exports = {
   config(options) {
-    config = Object.assign({}, { pincode: '031-45-154' }, options || {});
+    config = Object.assign({}, {
+      pincode: '031-45-154',
+      username: 'CC:22:3D:E3:CE:B9',
+    }, options || {});
   },
   addDevice(device) {
     logger.log(`Adding device (${device.id}) to homekit startup`);
@@ -54,7 +57,7 @@ module.exports = {
 
     // Publish the Bridge on the local network.
     bridge.publish({
-      username: 'CC:22:3D:E3:CE:F7',
+      username: config.username,
       port: 51826,
       pincode: config.pincode,
       category: Accessory.Categories.BRIDGE,

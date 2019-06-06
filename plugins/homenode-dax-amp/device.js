@@ -1,6 +1,8 @@
+const inherits = require('util').inherits;
 const _ = require('lodash');
 
 const MAX_VOLUME = 28; // Full is 38
+const MIN_VOLUME = 28; // Full is 38
 const MAX_TREBLE = 7;
 const MIN_TREBLE = -7;
 const MAX_BASS = 7;
@@ -203,19 +205,87 @@ module.exports = {
   homekit(accessory, HomeKit) {
     const { Service, Characteristic } = HomeKit;
 
-    const service = accessory.addService(Service.Television, this.name, this.name);
-    const name = service.getCharacteristic(Characteristic.ConfiguredName);
-    const sleepMode = service.getCharacteristic(Characteristic.SleepDiscoveryMode);
-    const power = service.getCharacteristic(Characteristic.Active);
-    const input = service.getCharacteristic(Characteristic.ActiveIdentifier);
-    const remoteKey = service.getCharacteristic(Characteristic.RemoteKey);
-    const pictureMode = service.getCharacteristic(Characteristic.PictureMode);
-    const powerModeSelection = service.getCharacteristic(Characteristic.PowerModeSelection);
+    /**
+     * Treble Characteristic
+     */
+    Characteristic.Treble = function() {
+      Characteristic.call(this, 'Treble', '00000119-0000-1000-8000-0026BB965291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        maxValue: MAX_TREBLE,
+        minValue: MIN_TREBLE,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY],
+      });
+      this.value = this.getDefaultValue();
+    };
 
-    // Defaults
-    name.setValue(this.name);
-    input.setValue(1);
-    sleepMode.setValue(Characteristic.SleepDiscoveryMode.ALWAYS_DISCOVERABLE);
+    inherits(Characteristic.Treble, Characteristic);
+
+    Characteristic.Treble.UUID = '00000119-0000-1000-8000-0026BB965291';
+
+    /**
+     * Bass Characteristic
+     */
+    Characteristic.Bass = function() {
+      Characteristic.call(this, 'Bass', '00000119-0000-1000-9010-0026BB965291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        maxValue: MAX_BASS,
+        minValue: MIN_BASS,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY],
+      });
+      this.value = this.getDefaultValue();
+    };
+
+    inherits(Characteristic.Bass, Characteristic);
+
+    Characteristic.Bass.UUID = '00000119-0000-1000-9010-0026BB965291';
+
+    /**
+     * Input Characteristic
+     */
+    Characteristic.Input = function() {
+      Characteristic.call(this, 'Input', '00000119-0000-1000-8000-0026AB965291');
+      this.setProps({
+        format: Characteristic.Formats.UINT8,
+        maxValue: 6,
+        minValue: 1,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY],
+      });
+      this.value = this.getDefaultValue();
+    };
+
+    inherits(Characteristic.Input, Characteristic);
+
+    Characteristic.Input.UUID = '00000119-0000-1000-8000-0026AB965291';
+
+    /**
+     * Input Name Characteristic
+     */
+    Characteristic.CurrentInput = function() {
+      Characteristic.call(this, 'Current Input', '00000129-0000-1000-8000-0029AB965291');
+      this.setProps({
+        format: Characteristic.Formats.STRING,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY],
+      });
+      this.value = this.getDefaultValue();
+    };
+
+    inherits(Characteristic.CurrentInput, Characteristic);
+
+    Characteristic.CurrentInput.UUID = '00000129-0000-1000-8000-0029AB965291';
+
+    const service = accessory.addService(Service.Switch, this.name);
+    const power = service.getCharacteristic(Characteristic.On);
+    const mute = service.getCharacteristic(Characteristic.Mute);
+    const volume = service.getCharacteristic(Characteristic.Volume);
+    const input = service.getCharacteristic(Characteristic.Input);
+    const currentInput = service.getCharacteristic(Characteristic.CurrentInput);
+    const treble = service.getCharacteristic(Characteristic.Treble);
+    const bass = service.getCharacteristic(Characteristic.Bass);
 
     /**
      * Power
@@ -233,12 +303,99 @@ module.exports = {
       });
 
     this.onTraitChange('power', (trait) => {
-      power.updateValue(trait.value ? 1 : 0);
+      power.updateValue(trait.value);
     });
 
     /**
-     * Active Input
+     * Mute
      */
+
+    mute
+      .on('set', (value, callback) => {
+        this.logger.log(`Homekit set mute: ${value}`);
+        this.setTrait('mute', value);
+        callback();
+      })
+      .on('get', (callback) => {
+        const value = this.getTraitValue('mute');
+        callback(null, value);
+      });
+
+    this.onTraitChange('mute', (trait) => {
+      mute.updateValue(trait.value);
+    });
+
+    /**
+     * Volume
+     */
+
+    volume
+      .on('set', (value, callback) => {
+        this.logger.log(`Homekit set volume: ${value}`);
+        const vol = Math.round(MAX_VOLUME * (value / 100));
+        this.setTrait('volume', vol);
+        callback();
+      })
+      .on('get', (callback) => {
+        const value = this.getTraitValue('volume');
+        callback(null, value);
+      });
+
+    this.onTraitChange('volume', (trait) => {
+      const perct = Math.round(trait.value / MAX_VOLUME * 100);
+      volume.updateValue(perct);
+    });
+
+    /**
+     * Treble
+     */
+
+    treble
+      .on('set', (value, callback) => {
+        this.logger.log(`Homekit set treble: ${value}`);
+        this.setTrait('treble', value);
+        callback();
+      })
+      .on('get', (callback) => {
+        const value = this.getTraitValue('treble');
+        callback(null, value);
+      });
+
+    this.onTraitChange('treble', (trait) => {
+      treble.updateValue(trait.value);
+    });
+
+    /**
+     * Bass
+     */
+
+    bass
+      .on('set', (value, callback) => {
+        this.logger.log(`Homekit set bass: ${value}`);
+        this.setTrait('bass', value);
+        callback();
+      })
+      .on('get', (callback) => {
+        const value = this.getTraitValue('bass');
+        callback(null, value);
+      });
+
+    this.onTraitChange('bass', (trait) => {
+      bass.updateValue(trait.value);
+    });
+
+    /**
+     * Input
+     */
+
+    const inputList = {};
+
+    [1, 2, 3, 4, 5, 6].forEach((num) => {
+      const configValue = this.getConfig(`input_${num}`);
+      if (configValue) {
+        inputList[num] = configValue;
+      }
+    });
 
     input
       .on('set', (value, callback) => {
@@ -256,134 +413,22 @@ module.exports = {
     });
 
     /**
-     * Remote Key
+     * Current Input
      */
-
-    const keyMap = {};
-    keyMap[Characteristic.RemoteKey.ARROW_UP] = 'UP';
-    keyMap[Characteristic.RemoteKey.ARROW_LEFT] = 'LEFT';
-    keyMap[Characteristic.RemoteKey.ARROW_RIGHT] = 'RIGHT';
-    keyMap[Characteristic.RemoteKey.ARROW_DOWN] = 'DOWN';
-    keyMap[Characteristic.RemoteKey.BACK] = 'BACK';
-    keyMap[Characteristic.RemoteKey.EXIT] = 'EXIT';
-    keyMap[Characteristic.RemoteKey.INFORMATION] = 'HOME';
-    keyMap[Characteristic.RemoteKey.SELECT] = 'SELECT';
-    keyMap[Characteristic.RemoteKey.PLAY_PAUSE] = 'PLAY';
-
-    remoteKey
+    currentInput
       .on('set', (value, callback) => {
-        const key = keyMap[value] || `UNKNOWN KEY ${value}`;
-        this.logger.log(`Homekit key press: ${key}`);
-
-        callback();
-      });
-
-    /**
-     * Picture Mode
-     */
-
-    pictureMode
-      .on('set', (value, callback) => {
-        this.logger.log(`Homekit set picture mode: ${value}`);
-
-        callback();
-      });
-
-    /**
-     * Power Mode Selection
-     * This is a weird name but should be used to hide/show the tv settings menu
-     */
-
-    powerModeSelection
-      .on('set', (value, callback) => {
-
-        if (value === Characteristic.PowerModeSelection.SHOW) {
-          this.logger.log(`Homekit set tv settings: Show`);
-        } else {
-          this.logger.log(`Homekit set tv settings: Hide`);
-        }
-
-        callback();
-      });
-
-    /**
-     * Speaker
-     */
-    const speakerService = accessory.addService(Service.TelevisionSpeaker);
-    const speakerPower = speakerService.getCharacteristic(Characteristic.Active);
-    const speakerMute = speakerService.getCharacteristic(Characteristic.Mute);
-    const speakerVolume = speakerService.getCharacteristic(Characteristic.Volume);
-    const speakerVolumeControlType = speakerService.getCharacteristic(Characteristic.VolumeControlType);
-    const speakerVolumeSelector = speakerService.getCharacteristic(Characteristic.VolumeSelector);
-
-    speakerPower.setValue(Characteristic.Active.ACTIVE);
-    speakerVolumeControlType.setValue(Characteristic.VolumeControlType.ABSOLUTE);
-
-    speakerVolumeSelector
-      .on('set', (value, callback) => {
-        this.logger.log(`Homekit set speaker volume selection: ${value}`);
-        callback();
-      });
-
-    // Mute
-    speakerMute
-      .on('set', (value, callback) => {
-        this.logger.log(`Homekit set mute: ${value}`);
-        this.setTrait('mute', value);
+        this.logger.error(`Can not call set on CurrentInput: ${value}`);
         callback();
       })
       .on('get', (callback) => {
-        const value = this.getTraitValue('mute');
-        callback(null, value);
+        const value = this.getTraitValue('input');
+        callback(null, inputList[value]);
       });
 
-    this.onTraitChange('mute', (trait) => {
-      speakerMute.updateValue(trait.value);
+    // When the input changes, update the current input display
+    this.onTraitChange('input', (trait) => {
+      currentInput.updateValue(inputList[trait.value]);
     });
 
-    // Volume
-    speakerVolume
-      .on('set', (value, callback) => {
-        this.logger.log(`Homekit set volume: ${value}`);
-        this.setTrait('volume', value);
-        callback();
-      })
-      .on('get', (callback) => {
-        const value = this.getTraitValue('volume');
-        callback(null, value);
-      });
-
-    this.onTraitChange('volume', (trait) => {
-      speakerVolume.updateValue(trait.value);
-    });
-
-    /**
-     * Inputs
-     */
-    const inputList = {};
-
-    [1, 2, 3, 4, 5, 6].forEach((num) => {
-      const configValue = this.getConfig(`input_${num}`);
-      if (configValue) {
-        inputList[num] = configValue;
-      }
-    });
-
-    const inputSwitches = {};
-
-    Object.entries(inputList).forEach(([inputNum, inputName]) => {
-      this.logger.log(`Setting up homekit input for ${inputName}`);
-
-      inputSwitches[inputNum] = accessory.addService(Service.InputSource, inputName, inputName);
-
-      inputSwitches[inputNum]
-        .setCharacteristic(Characteristic.Identifier, inputNum)
-        .setCharacteristic(Characteristic.ConfiguredName, inputName)
-        .setCharacteristic(Characteristic.IsConfigured, Characteristic.IsConfigured.CONFIGURED)
-        .setCharacteristic(Characteristic.InputSourceType, Characteristic.InputSourceType.HDMI)
-        .setCharacteristic(Characteristic.CurrentVisibilityState, Characteristic.CurrentVisibilityState.SHOWN);
-
-      service.addLinkedService(inputSwitches[inputNum]);
-    });
   },
 };
