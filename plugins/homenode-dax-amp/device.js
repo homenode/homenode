@@ -2,7 +2,6 @@ const inherits = require('util').inherits;
 const _ = require('lodash');
 
 const MAX_VOLUME = 28; // Full is 38
-const MIN_VOLUME = 28; // Full is 38
 const MAX_TREBLE = 7;
 const MIN_TREBLE = -7;
 const MAX_BASS = 7;
@@ -338,7 +337,8 @@ module.exports = {
       })
       .on('get', (callback) => {
         const value = this.getTraitValue('volume');
-        callback(null, value);
+        const perct = Math.round(value / MAX_VOLUME * 100);
+        callback(null, perct);
       });
 
     this.onTraitChange('volume', (trait) => {
