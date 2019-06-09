@@ -10,9 +10,6 @@ const { noop, noopPromise } = require('../../lib/utils.js');
  * @param obj - Object instance that is being extended
  */
 module.exports = function TraitsMixin(obj, storagePrefix) {
-  obj.afterTraitChange = obj.structure.afterTraitChange || noop;
-  obj.handleTraitChange = obj.structure.handleTraitChange || noopPromise;
-
   obj.traits = {};
 
   // Initialize
@@ -20,6 +17,16 @@ module.exports = function TraitsMixin(obj, storagePrefix) {
     _.each(obj.structure.traits || [], (traitConfig, traitId) => {
       const defaultValue = (_.has(traitConfig, 'default') ? traitConfig.default : null);
       obj.traits[traitId] = obj.getOrInsertTrait(traitId, defaultValue);
+
+      // Trait Config Defaults
+      if (!traitConfig.handleChange) {
+        traitConfig.handleChange = noopPromise;
+      }
+
+      if (!traitConfig.afterChange) {
+        traitConfig.afterChange = noop;
+      }
+
       obj.logger.debug(`restoreTrait (${traitId}) to (${obj.traits[traitId].value})`);
     });
   };
@@ -37,16 +44,26 @@ module.exports = function TraitsMixin(obj, storagePrefix) {
     return Datastore.set('traits', dbId, defaultValue);
   };
 
+  obj.getTraitConfig = (id) => {
+    if (obj.structure.traits && obj.structure.traits[id]) {
+      return obj.structure.traits[id];
+    } else {
+      throw new Error(`Unknown traitId (${id}) passed to getTraitConfig()`);
+    }
+  };
+
   // Trys to handle the traitChange() and if successful then calls syncTrait() to capture the new
   // value.
   obj.setTrait = async (id, value) => {
     try {
-      await obj.handleTraitChange(id, value);
+      const config = obj.getTraitConfig(id);
+
+      await config.handleChange.call(obj, value);
 
       obj.logger.debug(`setTrait: (${id}) to (${value})`);
       obj.syncTrait(id, value);
     } catch (err) {
-      obj.logger.error(`setTrait: (${id}) to (${value}) failed. Response: `, err);
+      obj.logger.error(`setTrait: (${id}) to (${value}) failed. Response: `, err.stack || err);
     }
   };
 
@@ -63,21 +80,38 @@ module.exports = function TraitsMixin(obj, storagePrefix) {
     if (currentRecord && currentRecord.value !== newRecord.value) {
       obj.triggerTraitChange(id, newRecord, currentRecord);
 
-      obj.afterTraitChange.call(obj, id, newRecord, currentRecord);
+      const config = obj.getTraitConfig(id);
+
+      try {
+        config.afterChange.call(obj, newRecord, currentRecord);
+      } catch (err) {
+        obj.logger.error(`Trait (${id}) afterChange failed. Response: `, err.stack || err);
+      }
     }
   };
 
-  obj.getTrait = (id) => obj.traits[id] && obj.traits[id] || null;
+  obj.getTrait = (id) => {
+    if (obj.traits && obj.traits[id]) {
+      return obj.traits[id];
+    } else {
+      throw new Error(`Unknown traitId (${id}) passed to getTrait()`);
+    }
+  };
+
   obj.getTraitValue = (id) => {
-    // This check will support falsey values, like 0, '', false, etc.
-    if (obj.traits[id] && obj.traits[id].value !== undefined) {
-      return obj.traits[id].value;
-    }
-
-    return null;
+    const trait = obj.getTrait(id);
+    return trait.value;
   };
-  obj.getTraitLastChanged = (id) => obj.traits[id] && obj.traits[id].lastChanged || null;
-  obj.getTraitLastUpdated = (id) => obj.traits[id] && obj.traits[id].lastupdated || null;
+
+  obj.getTraitLastChanged = (id) => {
+    const trait = obj.getTrait(id);
+    return trait.lastChange;
+  };
+
+  obj.getTraitLastUpdated = (id) => {
+    const trait = obj.getTrait(id);
+    return trait.lastupdated;
+  };
 
   // Events
   obj.traitEmitter = new events.EventEmitter();

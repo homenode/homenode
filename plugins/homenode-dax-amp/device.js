@@ -56,26 +56,93 @@ module.exports = {
     power: {
       type: 'boolean',
       default: false,
+      handleChange(value) {
+        this.command('send', (value ? 'PR01' : 'PR00'));
+      },
+      afterChange(newTrait, oldTrait) {
+        if (newTrait.value === true && oldTrait.value === false) {
+          this.triggerEvent('on');
+        } else if (newTrait.value === false && oldTrait.value === true) {
+          this.triggerEvent('off');
+        }
+      },
     },
     input: {
       type: 'integer',
       default: 1,
+      handleChange(value) {
+        return new Promise((resolve, reject) => {
+          const channel = _.toInteger(value);
+          if (channel <= 6 && channel >= 1) {
+            this.command('send', `CH0${channel}`);
+            resolve();
+          } else {
+            reject(`Invalid input value (${channel}) passed to setTrait`);
+          }
+        });
+      },
     },
     mute: {
       type: 'boolean',
       default: false,
+      handleChange(value) {
+        this.command('send', (value ? 'MU01' : 'MU00'));
+      },
     },
     volume: {
       type: 'integer',
       default: 8,
+      handleChange(value) {
+        return new Promise((resolve, reject) => {
+          let level = _.toInteger(value);
+
+          if (level <= MAX_VOLUME && level >= 0) {
+            level = fillZeros(level);
+            this.command('send', `VO${level}`);
+            resolve();
+          } else {
+            reject(`Invalid volume value (${level}) passed to setTrait`);
+          }
+        });
+      },
     },
     treble: {
       type: 'integer',
       default: 0,
+      handleChange(value) {
+        return new Promise((resolve, reject) => {
+          let level = _.toInteger(value);
+
+          if (level <= MAX_TREBLE && level >= MIN_TREBLE) {
+            // Correct the level before syncing to amp
+            level = level + 7;
+            level = fillZeros(level);
+            this.command('send', `TR${level}`);
+            resolve();
+          } else {
+            reject(`Invalid treble value (${level}) passed to setTrait`);
+          }
+        });
+      },
     },
     bass: {
       type: 'integer',
       default: 0,
+      handleChange(value) {
+        return new Promise((resolve, reject) => {
+          let level = _.toInteger(value);
+
+          if (level <= MAX_BASS && level >= MIN_BASS) {
+            // Correct the level before syncing to amp
+            level = level + 7;
+            level = fillZeros(level);
+            this.command('send', `BS${level}`);
+            resolve();
+          } else {
+            reject(`Invalid bass value (${level}) passed to setTrait`);
+          }
+        });
+      },
     },
   },
   events: [
@@ -126,80 +193,6 @@ module.exports = {
         this.setTrait('bass', level);
       },
     },
-  },
-  handleTraitChange(traitId, value) {
-    return new Promise((resolve, reject) => {
-      if (traitId === 'power') {
-        if (value) {
-          this.command('send', 'PR01');
-        } else {
-          this.command('send', 'PR00');
-        }
-        resolve();
-      } else if (traitId === 'mute') {
-        if (value) {
-          this.command('send', 'MU01');
-        } else {
-          this.command('send', 'MU00');
-        }
-        resolve();
-      } else if (traitId === 'input') {
-        const channel = _.toInteger(value);
-        if (channel <= 6 && channel >= 1) {
-          this.command('send', `CH0${channel}`);
-          resolve();
-        } else {
-          reject(`Invalid input value (${channel}) passed to setTrait`);
-        }
-      } else if (traitId === 'volume') {
-        let level = _.toInteger(value);
-
-        if (level <= MAX_VOLUME && level >= 0) {
-          level = fillZeros(level);
-          this.command('send', `VO${level}`);
-          resolve();
-        } else {
-          reject(`Invalid volume value (${level}) passed to setTrait`);
-        }
-      } else if (traitId === 'treble') {
-        let level = _.toInteger(value);
-
-        if (level <= MAX_TREBLE && level >= MIN_TREBLE) {
-          // Correct the level before syncing to amp
-          level = level + 7;
-          level = fillZeros(level);
-          this.command('send', `TR${level}`);
-          resolve();
-        } else {
-          reject(`Invalid treble value (${level}) passed to setTrait`);
-        }
-      } else if (traitId === 'bass') {
-        let level = _.toInteger(value);
-
-        if (level <= MAX_BASS && level >= MIN_BASS) {
-          // Correct the level before syncing to amp
-          level = level + 7;
-          level = fillZeros(level);
-          this.command('send', `BS${level}`);
-          resolve();
-        } else {
-          reject(`Invalid bass value (${level}) passed to setTrait`);
-        }
-      } else {
-        reject(`Unhandled trait change on (${traitId})`);
-      }
-    });
-  },
-  afterTraitChange(traitId, newTrait, oldTrait) {
-    switch (traitId) {
-      case 'power':
-        if (newTrait.value === true && oldTrait.value === false) {
-          this.triggerEvent('on');
-        } else if (newTrait.value === false && oldTrait.value === true) {
-          this.triggerEvent('off');
-        }
-        break;
-    }
   },
   homekit(accessory, HomeKit) {
     const { Service, Characteristic } = HomeKit;

@@ -85,6 +85,14 @@ module.exports = function Clock() {
       time: {
         type: 'string',
         history: false,
+        afterChange(newTrait) {
+          solarList.forEach((prop) => {
+            const time = this.getTraitValue(prop);
+            if (newTrait.value === time) {
+              this.triggerEvent(prop);
+            }
+          }, this);
+        },
       },
       date: {
         type: 'string',
@@ -126,17 +134,6 @@ module.exports = function Clock() {
         type: 'string',
         history: false,
       },
-    },
-    afterTraitChange(traitId, newTrait, oldTrait) {
-      // The time trait will change once a min.
-      if (traitId === 'time') {
-        solarList.forEach((prop) => {
-          const time = this.getTraitValue(prop);
-          if (newTrait.value === time) {
-            this.triggerEvent(prop);
-          }
-        }, this);
-      }
     },
   });
 };

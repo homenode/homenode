@@ -12,8 +12,8 @@ module.exports = function automationClass(HomeNode, instanceConfig) {
     this.logger.log('Triggered!');
     try {
       instanceConfig.trigger();
-    } catch (e) {
-      this.logger.error('Crashed with error: ', e, e.stack || '');
+    } catch (err) {
+      this.logger.error('Crashed with error: ', err.stack || err);
     }
   };
 

@@ -299,13 +299,7 @@ devices.
            max: 6,
            step: 1,
          }
-       },
-        
-       // Called if the trait value validates ok
-       handleTraitChange: function(trait, value) {
-         // Call this.interface to update the trait value
-         // Return promise
-       },      
+       },    
        
        // Least thought out....
        traitMapping: {
