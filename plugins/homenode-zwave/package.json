@@ -1,5 +1,5 @@
 {
-  "name": "homenode-dax-amp",
+  "name": "homenode-zwave",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "serialport": "^7.1.5",
-    "lodash": "^4.17.11"
+    "openzwave-shared": "^1.4.8"
   }
 }

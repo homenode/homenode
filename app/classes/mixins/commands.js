@@ -25,8 +25,8 @@ module.exports = function CommandsMixin(obj) {
 
     try {
       return obj.commands[name].handler.call(obj, payload);
-    } catch (e) {
-      obj.logger.error(`Command (${name}) crashed with error: `, e, e.stack || '');
+    } catch (err) {
+      obj.logger.error(`Command (${name}) crashed with error: `, err.stack || err);
     }
   };
 };

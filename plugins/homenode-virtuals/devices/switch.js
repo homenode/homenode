@@ -4,6 +4,13 @@ module.exports = {
     power: {
       type: 'boolean',
       default: false,
+      afterChange(newTrait, oldTrait) {
+        if (newTrait.value === true && oldTrait.value === false) {
+          this.triggerEvent('on');
+        } else if (newTrait.value === false && oldTrait.value === true) {
+          this.triggerEvent('off');
+        }
+      },
     },
   },
   events: [
@@ -21,13 +28,6 @@ module.exports = {
         this.setTrait('power', false);
       },
     },
-  },
-  afterTraitChange(traitId, newTrait, oldTrait) {
-    if (newTrait.value === true && oldTrait.value === false) {
-      this.triggerEvent('on');
-    } else if (newTrait.value === false && oldTrait.value === true) {
-      this.triggerEvent('off');
-    }
   },
   homekit(accessory, HomeKit) {
     const { Service, Characteristic } = HomeKit;

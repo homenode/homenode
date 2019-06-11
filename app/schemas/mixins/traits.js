@@ -16,17 +16,15 @@ module.exports = (obj) => {
           type: 'boolean',
         },
         default: {},
+        handleChange: {
+          type: 'string',
+          const: 'function',
+        },
+        afterChange: {
+          type: 'string',
+          const: 'function',
+        },
       },
     },
-  };
-
-  obj.properties.handleTraitChange = {
-    type: 'string',
-    const: 'function',
-  };
-
-  obj.properties.afterTraitChange = {
-    type: 'string',
-    const: 'function',
   };
 };
