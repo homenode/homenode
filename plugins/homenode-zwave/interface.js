@@ -7,26 +7,6 @@ connecting the device to locate it.
 ls /dev/tty*
  */
 
-/**
- * Z-Wave: node10: GE, 14294 In-Wall Smart Dimmer
- Z-Wave: node10: name="", type="Light Dimmer Switch", location=""
- Z-Wave: node10: class 38
- Z-Wave: node10: class 39
- Z-Wave: node10: class 94
- Z-Wave: node10: class 112
- Z-Wave: node10: class 115
- Z-Wave: node10: class 134
-
- Z-Wave: node16: HomeSeer, Unknown: type=4447, id=3036
- Z-Wave: node16: name="", type="Light Dimmer Switch", location=""
- Z-Wave: node16: class 38
- Z-Wave: node16: class 39
- Z-Wave: node16: class 91
- Z-Wave: node16: class 94
- Z-Wave: node16: class 115
- Z-Wave: node16: class 134
- */
-
 const OZW = require('openzwave-shared');
 
 module.exports = {
