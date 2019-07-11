@@ -33,7 +33,7 @@ module.exports = {
       handleChange(value) {
         // Max value allowed is 99
         if (value > 99) {
-          value = 100;
+          value = 99;
         }
         const node = this.getConfig('node');
         this.interface.zwave.setValue(node, 38, 1, 0, value);
