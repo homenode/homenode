@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "openzwave-shared": "^1.4.8"
+    "openzwave-shared": "^1.5.10"
   }
 }
