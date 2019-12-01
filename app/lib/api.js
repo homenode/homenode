@@ -16,6 +16,7 @@ const deviceFields = [
   'interface',
   'name',
   'traits',
+  'config',
 ];
 
 function deviceToJson(device) {
@@ -41,7 +42,18 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => res.send('Homenode API Server!'));
 
-app.get('/device/:id', (req, res) => {
+app.get('/devices', (req, res) => {
+  const devices = Registry.getType('device');
+
+  const devicesJson = Object.keys(devices).reduce((json, deviceId) => {
+    json[deviceId] = deviceToJson(devices[deviceId]);
+    return json;
+  }, {});
+
+  res.json(devicesJson);
+});
+
+app.get('/devices/:id', (req, res) => {
   const deviceId = req.params.id;
   const device = Registry.getDevice(deviceId);
 
@@ -51,7 +63,7 @@ app.get('/device/:id', (req, res) => {
 });
 
 // Use this for triggering a full set command, this will try to update the device and trigger events.
-app.post('/device/:id/trait/:trait_id/set', async (req, res) => {
+app.post('/devices/:id/trait/:trait_id/set', async (req, res) => {
   if (req.body.value === undefined) {
     return res.json({ error: 'Must pass in a value query param' });
   }
@@ -73,7 +85,7 @@ app.post('/device/:id/trait/:trait_id/set', async (req, res) => {
 
 // Use this for triggering a sync command, this will not try to update the device but will still trigger events.
 // This is useful for updating a device trait once it's already been changed, probably on the device itself.
-app.post('/device/:id/trait/:trait_id/sync', async (req, res) => {
+app.post('/devices/:id/trait/:trait_id/sync', async (req, res) => {
   if (req.body.value === undefined) {
     return res.json({ error: 'Must pass in a value query param' });
   }
