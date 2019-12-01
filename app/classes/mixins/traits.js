@@ -2,7 +2,7 @@ const events = require('events');
 const _ = require('lodash');
 const Datastore = require('../../lib/datastore.js');
 
-const { noop, noopPromise } = require('../../lib/utils.js');
+const { noop, noopPromise, forceType } = require('../../lib/utils.js');
 
 /**
  * This function will extend the passed in object with a traits api.
@@ -58,6 +58,9 @@ module.exports = function TraitsMixin(obj, storagePrefix) {
     try {
       const config = obj.getTraitConfig(id);
 
+      // Type coercion
+      value = forceType(config.type, value);
+
       await config.handleChange.call(obj, value);
 
       obj.logger.debug(`setTrait: (${id}) to (${value})`);
@@ -69,6 +72,11 @@ module.exports = function TraitsMixin(obj, storagePrefix) {
 
   // Updates our local trait datastore, and triggers events
   obj.syncTrait = (id, value) => {
+    const config = obj.getTraitConfig(id);
+
+    // Type coercion
+    value = forceType(config.type, value);
+
     obj.logger.debug(`syncTrait: (${id}) to (${value})`);
 
     const dbId = obj.getDatastoreTraitId(id);
@@ -79,8 +87,6 @@ module.exports = function TraitsMixin(obj, storagePrefix) {
 
     if (currentRecord && currentRecord.value !== newRecord.value) {
       obj.triggerTraitChange(id, newRecord, currentRecord);
-
-      const config = obj.getTraitConfig(id);
 
       try {
         config.afterChange.call(obj, newRecord, currentRecord);

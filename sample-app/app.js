@@ -4,22 +4,25 @@ HomeNode.setPluginPath('../plugins/');
 HomeNode.enableHomekit({
   pincode: '429-42-927',
 });
-
-const Clock = HomeNode.loadPlugin('clock');
-const Virtuals = HomeNode.loadPlugin('virtuals');
-const Say = HomeNode.loadPlugin('say');
-
-// Clock
-Clock.device({
-  id: 'time',
-  type: 'time',
-  name: 'Time',
-  config: {
-    timezone: 'America/Chicago',
-    lat: 46.891295,
-    long: -100.834569,
-  },
+HomeNode.enableApi({
+  port: '3000',
 });
+
+//const Clock = HomeNode.loadPlugin('clock');
+const Virtuals = HomeNode.loadPlugin('virtuals');
+//const Say = HomeNode.loadPlugin('say');
+
+// // Clock
+// Clock.device({
+//   id: 'time',
+//   type: 'time',
+//   name: 'Time',
+//   config: {
+//     timezone: 'America/Chicago',
+//     lat: 46.891295,
+//     long: -100.834569,
+//   },
+// });
 
 Virtuals.device({
   id: 'fake-amp-zone',
@@ -34,17 +37,17 @@ Virtuals.device({
     input_6: 'Kids Cast',
   },
 });
+//
+// Virtuals.device({
+//   id: 'fake-speaker',
+//   type: 'speaker',
+//   name: 'Fake Speaker',
+// });
 
 Virtuals.device({
-  id: 'fake-speaker',
-  type: 'speaker',
-  name: 'Fake Speaker',
-});
-
-Virtuals.device({
-  id: 'fake-switch',
+  id: 'fake-door-break',
   type: 'switch',
-  name: 'Fake Switch',
+  name: 'Front Door',
 });
 
 Virtuals.device({
@@ -52,44 +55,44 @@ Virtuals.device({
   type: 'light-dimmer',
   name: 'Fake Lightbulb',
 });
+//
+// Virtuals.device({
+//   id: 'fake-tv',
+//   type: 'tv',
+//   name: 'Fake TV',
+// });
+//
+// Say.device({
+//   id: 'say',
+//   type: 'say',
+//   name: 'Mac Say',
+// });
 
-Virtuals.device({
-  id: 'fake-tv',
-  type: 'tv',
-  name: 'Fake TV',
-});
-
-Say.device({
-  id: 'say',
-  type: 'say',
-  name: 'Mac Say',
-});
-
-HomeNode.automation({
-  id: 'turn-on-lights',
-  startup() {
-    setTimeout(() => {
-      this.trigger();
-    }, 3000);
-  },
-  trigger() {
-    // Do stuff
-    // boom; Test try/catch
-  },
-});
-
-// Automatically turn lights off after 15 mins
-HomeNode.automation({
-  id: 'turn-off-lights',
-  startup() {
-    HomeNode.getDevice('time').onTraitChange('time', (new_value, old_value) => {
-      // Nothing
-    });
-  },
-  trigger() {
-    // Do stuff
-  },
-});
+// HomeNode.automation({
+//   id: 'turn-on-lights',
+//   startup() {
+//     setTimeout(() => {
+//       this.trigger();
+//     }, 3000);
+//   },
+//   trigger() {
+//     // Do stuff
+//     // boom; Test try/catch
+//   },
+// });
+//
+// // Automatically turn lights off after 15 mins
+// HomeNode.automation({
+//   id: 'turn-off-lights',
+//   startup() {
+//     HomeNode.getDevice('time').onTraitChange('time', (new_value, old_value) => {
+//       // Nothing
+//     });
+//   },
+//   trigger() {
+//     // Do stuff
+//   },
+// });
 
 HomeNode.tree();
 

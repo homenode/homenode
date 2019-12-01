@@ -1,6 +1,8 @@
 const Datastore = require('./lib/datastore.js');
 const Registry = require('./lib/registry.js');
 const Logger = require('./lib/logger.js');
+const Api = require('./lib/api.js');
+
 const {
   validateAutomationInstance,
 } = require('./lib/validator.js');
@@ -15,6 +17,7 @@ const Homekit = require('./integrations/homekit.js');
 
 let pluginBasePath = '';
 let homekitEnabled = false;
+let apiEnabled = false;
 
 /**
  * HomeNode public module
@@ -67,6 +70,12 @@ const HomeNode = module.exports = {
     logger.log('Enabling homekit...');
     homekitEnabled = true;
     Homekit.config(options);
+  },
+
+  enableApi: (options) => {
+    logger.log('Enabling api...');
+    apiEnabled = true;
+    Api.config(options);
   },
 
   /**
@@ -126,6 +135,12 @@ const HomeNode = module.exports = {
       logger.log('Starting homekit...');
       await Homekit.startup();
       logger.log('Homekit started.');
+    }
+
+    if (apiEnabled) {
+      logger.log('Starting api...');
+      await Api.startup();
+      logger.log('Api started.');
     }
 
     logger.log('Starting automations...');
