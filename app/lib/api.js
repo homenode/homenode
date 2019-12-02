@@ -25,6 +25,8 @@ function deviceToJson(device) {
     return obj;
   }, {});
 
+  json.interface = json.interface && json.interface.config || null;
+
   return json;
 }
 
