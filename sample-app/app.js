@@ -24,44 +24,50 @@ const Virtuals = HomeNode.loadPlugin('virtuals');
 //   },
 // });
 
-Virtuals.device({
-  id: 'fake-amp-zone',
-  type: 'amp-zone',
-  name: 'Fake Amp Zone',
-  config: {
-    input_1: 'Living Room',
-    input_2: 'Master Bedroom',
-    input_3: 'Master Bathroom',
-    input_4: 'Bonus Room',
-    input_5: 'Cast',
-    input_6: 'Kids Cast',
-  },
-});
-//
+// Virtuals.device({
+//   id: 'fake-amp-zone',
+//   type: 'amp-zone',
+//   name: 'Fake Amp Zone',
+//   config: {
+//     input_1: 'Living Room',
+//     input_2: 'Master Bedroom',
+//     input_3: 'Master Bathroom',
+//     input_4: 'Bonus Room',
+//     input_5: 'Cast',
+//     input_6: 'Kids Cast',
+//   },
+// });
+
 // Virtuals.device({
 //   id: 'fake-speaker',
 //   type: 'speaker',
 //   name: 'Fake Speaker',
 // });
 
-Virtuals.device({
-  id: 'fake-door-break',
-  type: 'switch',
-  name: 'Front Door',
-});
+// Virtuals.device({
+//   id: 'fake-door-break',
+//   type: 'switch',
+//   name: 'Front Door',
+// });
 
 Virtuals.device({
-  id: 'fake-light-dimmer',
-  type: 'light-dimmer',
-  name: 'Fake Lightbulb',
+  id: 'fake-door-break2',
+  type: 'contact-sensor',
+  name: 'Front Door Sensor',
 });
-//
+
+// Virtuals.device({
+//   id: 'fake-light-dimmer',
+//   type: 'light-dimmer',
+//   name: 'Fake Lightbulb',
+// });
+
 // Virtuals.device({
 //   id: 'fake-tv',
 //   type: 'tv',
 //   name: 'Fake TV',
 // });
-//
+
 // Say.device({
 //   id: 'say',
 //   type: 'say',
@@ -80,7 +86,7 @@ Virtuals.device({
 //     // boom; Test try/catch
 //   },
 // });
-//
+
 // // Automatically turn lights off after 15 mins
 // HomeNode.automation({
 //   id: 'turn-off-lights',
