@@ -57,7 +57,7 @@ module.exports = {
       type: 'boolean',
       default: false,
       handleChange(value) {
-        this.command('send', (value ? 'PR01' : 'PR00'));
+        return this.command('send', (value ? 'PR01' : 'PR00'));
       },
       afterChange(newTrait, oldTrait) {
         if (newTrait.value === true && oldTrait.value === false) {
@@ -71,10 +71,10 @@ module.exports = {
       type: 'integer',
       default: 1,
       handleChange(value) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
           const channel = _.toInteger(value);
           if (channel <= 6 && channel >= 1) {
-            this.command('send', `CH0${channel}`);
+            await this.command('send', `CH0${channel}`);
             resolve();
           } else {
             reject(`Invalid input value (${channel}) passed to setTrait`);
@@ -86,19 +86,19 @@ module.exports = {
       type: 'boolean',
       default: false,
       handleChange(value) {
-        this.command('send', (value ? 'MU01' : 'MU00'));
+        return this.command('send', (value ? 'MU01' : 'MU00'));
       },
     },
     volume: {
       type: 'integer',
       default: 8,
       handleChange(value) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
           let level = _.toInteger(value);
 
           if (level <= MAX_VOLUME && level >= 0) {
             level = fillZeros(level);
-            this.command('send', `VO${level}`);
+            await this.command('send', `VO${level}`);
             resolve();
           } else {
             reject(`Invalid volume value (${level}) passed to setTrait`);
@@ -110,14 +110,14 @@ module.exports = {
       type: 'integer',
       default: 0,
       handleChange(value) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
           let level = _.toInteger(value);
 
           if (level <= MAX_TREBLE && level >= MIN_TREBLE) {
             // Correct the level before syncing to amp
             level = level + 7;
             level = fillZeros(level);
-            this.command('send', `TR${level}`);
+            await this.command('send', `TR${level}`);
             resolve();
           } else {
             reject(`Invalid treble value (${level}) passed to setTrait`);
@@ -129,14 +129,14 @@ module.exports = {
       type: 'integer',
       default: 0,
       handleChange(value) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
           let level = _.toInteger(value);
 
           if (level <= MAX_BASS && level >= MIN_BASS) {
             // Correct the level before syncing to amp
             level = level + 7;
             level = fillZeros(level);
-            this.command('send', `BS${level}`);
+            await this.command('send', `BS${level}`);
             resolve();
           } else {
             reject(`Invalid bass value (${level}) passed to setTrait`);
