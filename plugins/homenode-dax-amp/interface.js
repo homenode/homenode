@@ -46,14 +46,18 @@ module.exports = {
   commands: {
     send: {
       handler(data) {
-        this.logger.log('Writing Data: ', data.trim());
+        return new Promise((resolve, reject) => {
+          this.logger.log('Writing Data: ', data.trim());
 
-        this.conn.write(data, (err) => {
-          if (err) {
-            return this.logger.log('Write Error: ', err.message);
-          }
+          this.conn.write(data, (err) => {
+            if (err) {
+              this.logger.log('Write Error: ', err.message);
+              return reject('Write Error');
+            }
 
-          this.logger.log('Write Completed');
+            this.logger.log('Write Completed');
+            resolve();
+          });
         });
       },
     },
