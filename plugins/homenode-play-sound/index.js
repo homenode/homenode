@@ -1,5 +1,8 @@
 const player = require('play-sound')();
 
+// Install mpg321 that plays the full mp3
+// sudo apt-get -y install mpg321
+
 module.exports = function PlaySound() {
   /*
   Device
