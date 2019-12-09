@@ -20,6 +20,8 @@ module.exports = {
 
       this.events = new EventEmitter();
 
+      this.events.setMaxListeners(30);
+
       this.conn = new SerialPort(port, {
         baudRate,
       }, (err) => {
