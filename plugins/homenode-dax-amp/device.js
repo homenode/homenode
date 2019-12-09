@@ -83,6 +83,8 @@ module.exports = {
           this.logger.log('Refresh state', newState);
         }
       });
+
+      resolve();
     });
   },
   traits: {

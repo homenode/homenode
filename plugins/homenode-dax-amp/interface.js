@@ -1,4 +1,5 @@
 const SerialPort = require('serialport');
+const Readline = SerialPort.parsers.Readline;
 const EventEmitter = require('events');
 
 module.exports = {
@@ -35,14 +36,14 @@ module.exports = {
         resolve();
       });
 
+      this.parser = this.conn.pipe(new Readline());
+
       // Setup listeners
       this.conn.on('error', (err) => {
         this.logger.error(err.message);
       });
 
-      this.conn.on('data', (data) => {
-        data = data.replace('#', '');
-
+      this.parser.on('data', (data) => {
         console.log('DAX Data:', data);
 
         this.events.emit('incoming', data);
