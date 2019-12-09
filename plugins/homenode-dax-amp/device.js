@@ -15,6 +15,25 @@ function fillZeros(level) {
   return level;
 }
 
+function parseStatusString(string) {
+  const parts = string.match(/.{1,2}/g);
+  const amp_zone = parts[1].split('');
+  return {
+    amp: parseInt(amp_zone[0]),
+    zone: parseInt(amp_zone[1]),
+    power: parts[3] === '01',
+    input: parseInt(parts[10]),
+    volume: parseInt(parts[6]),
+    mute: parts[4] === '01',
+    treble: parseInt(parts[7]) - 7,
+    bass: parseInt(parts[8]) - 7,
+    balance: parseInt(parts[9]),
+    pa_override: parts[2] === '01',
+    do_not_disturb: parts[5] === '01',
+    keypad: parts[11] === '01',
+  };
+}
+
 module.exports = {
   type: 'zone',
   interface: 'dax-amp',
@@ -51,6 +70,20 @@ module.exports = {
       type: 'string',
       default: '',
     },
+  },
+  startup() {
+    return new Promise((resolve, reject) => {
+      const amp = this.getConfig('amp');
+      const zone = this.getConfig('zone');
+
+      // Setup refresh listener
+      this.interface.events.on('incoming', (data) => {
+        if (data.startsWith(`#>${amp}${zone}`) && data.length === 24) {
+          const newState = parseStatusString(data);
+          this.logger.log('Refresh state', newState);
+        }
+      });
+    });
   },
   traits: {
     power: {
