@@ -78,10 +78,12 @@ module.exports = {
 
       // Setup refresh listener
       this.interface.events.on('incoming', (data) => {
-        if (data.startsWith(`#>${amp}${zone}`) && data.length === 24) {
-          this.logger.log('Amp refresh state received. Checking for out of sync traits.');
+        if (data.startsWith(`#>${amp}${zone}`) && data.length === 26) {
+          this.logger.debug('Amp refresh state received. Checking for out of sync traits.');
 
           const newState = parseStatusString(data);
+
+          this.logger.debug('New state', newState);
 
           const power = this.getTraitValue('power');
           if (power !== newState.power) {
@@ -118,8 +120,6 @@ module.exports = {
             this.logger.error(`Out of sync error on bass. Old Value: ${bass} New Value: ${newState.bass}`);
             this.syncTrait('bass', newState.bass);
           }
-
-          //this.logger.log('Refresh state', newState);
         }
       });
 

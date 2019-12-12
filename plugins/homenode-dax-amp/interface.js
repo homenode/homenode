@@ -44,8 +44,7 @@ module.exports = {
       });
 
       this.parser.on('data', (data) => {
-        console.log('DAX Data:', data);
-
+        this.logger.debug('Incoming data: ', data);
         this.events.emit('incoming', data);
       });
 
@@ -60,7 +59,7 @@ module.exports = {
   polling: {
     refreshStatus: {
       runAtStartup: true,
-      secs: 20,
+      secs: 3600,
       handler() {
         this.command('refresh');
       },
@@ -72,18 +71,12 @@ module.exports = {
         return new Promise((resolve, reject) => {
           this.logger.log('Writing Data: ', data.trim());
 
-          // if (data[0] !== '?') {
-          //   this.events.once('incoming', (data) => {
-          //     this.logger.log(`Response Received ${data}`);
-          //     resolve();
-          //   });
-          // } else if (data[0] === '?') {
-          //   resolve();
-          // }
-
           this.events.once('incoming', (data) => {
             this.logger.log(`Response Received ${data}`);
-            resolve();
+            // This timeout helps buffer the command next command that might be sent to the amps
+            setTimeout(() => {
+              resolve();
+            }, 100);
           });
 
           this.conn.write(data, (err) => {
