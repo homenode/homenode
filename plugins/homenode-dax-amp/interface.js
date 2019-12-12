@@ -57,18 +57,34 @@ module.exports = {
       });
     });
   },
+  polling: {
+    refreshStatus: {
+      runAtStartup: true,
+      secs: 20,
+      handler() {
+        this.command('refresh');
+      },
+    },
+  },
   commands: {
     send: {
       handler(data) {
         return new Promise((resolve, reject) => {
           this.logger.log('Writing Data: ', data.trim());
 
-          if (data[0] !== '?') {
-            this.events.once('incoming', (data) => {
-              this.logger.log(`Response Received ${data}`);
-              resolve();
-            });
-          }
+          // if (data[0] !== '?') {
+          //   this.events.once('incoming', (data) => {
+          //     this.logger.log(`Response Received ${data}`);
+          //     resolve();
+          //   });
+          // } else if (data[0] === '?') {
+          //   resolve();
+          // }
+
+          this.events.once('incoming', (data) => {
+            this.logger.log(`Response Received ${data}`);
+            resolve();
+          });
 
           this.conn.write(data, (err) => {
             if (err) {
@@ -83,9 +99,9 @@ module.exports = {
     },
     refresh: {
       async handler() {
-        await this.interface.command('send', `?10` + '\r\n');
-        await this.interface.command('send', `?20` + '\r\n');
-        await this.interface.command('send', `?30` + '\r\n');
+        await this.command('send', `?10` + '\r\n');
+        await this.command('send', `?20` + '\r\n');
+        await this.command('send', `?30` + '\r\n');
       },
     },
   },

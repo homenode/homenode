@@ -45,7 +45,7 @@ module.exports = {
       // console.log('Updating record', collection, id, value);
       record.lastUpdated = nowTimestamp;
 
-      // Track a timestamp if the value cahgnes
+      // Track a timestamp if the value changes
       if (record.value !== value) {
         record.lastChanged = nowTimestamp;
       }

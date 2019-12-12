@@ -79,8 +79,47 @@ module.exports = {
       // Setup refresh listener
       this.interface.events.on('incoming', (data) => {
         if (data.startsWith(`#>${amp}${zone}`) && data.length === 24) {
+          this.logger.log('Amp refresh state received. Checking for out of sync traits.');
+
           const newState = parseStatusString(data);
-          this.logger.log('Refresh state', newState);
+
+          const power = this.getTraitValue('power');
+          if (power !== newState.power) {
+            this.logger.error(`Out of sync error on power. Old Value: ${power} New Value: ${newState.power}`);
+            this.syncTrait('power', newState.power);
+          }
+
+          const input = this.getTraitValue('input');
+          if (input !== newState.input) {
+            this.logger.error(`Out of sync error on input. Old Value: ${input} New Value: ${newState.input}`);
+            this.syncTrait('input', newState.input);
+          }
+
+          const volume = this.getTraitValue('volume');
+          if (volume !== newState.volume) {
+            this.logger.error(`Out of sync error on volume. Old Value: ${volume} New Value: ${newState.volume}`);
+            this.syncTrait('volume', newState.volume);
+          }
+
+          const mute = this.getTraitValue('mute');
+          if (mute !== newState.mute) {
+            this.logger.error(`Out of sync error on mute. Old Value: ${mute} New Value: ${newState.mute}`);
+            this.syncTrait('mute', newState.mute);
+          }
+
+          const treble = this.getTraitValue('treble');
+          if (treble !== newState.treble) {
+            this.logger.error(`Out of sync error on treble. Old Value: ${treble} New Value: ${newState.treble}`);
+            this.syncTrait('treble', newState.treble);
+          }
+
+          const bass = this.getTraitValue('bass');
+          if (bass !== newState.bass) {
+            this.logger.error(`Out of sync error on bass. Old Value: ${bass} New Value: ${newState.bass}`);
+            this.syncTrait('bass', newState.bass);
+          }
+
+          //this.logger.log('Refresh state', newState);
         }
       });
 
