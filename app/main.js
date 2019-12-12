@@ -119,6 +119,18 @@ const HomeNode = module.exports = {
     }));
     logger.log('Devices startup complete.');
 
+    logger.log('Starting polling on interfaces...');
+    await Promise.all(Object.values(interfaces).map((interface) => Promise.all(Object.entries(interface.polling).map(async ([pollId, poll]) => {
+      logger.log(`Registering polling (${pollId}) on interface (${interface.id})`);
+
+      setInterval(() => interface.runPoll(pollId), poll.secs * 1000);
+
+      if (poll.runAtStartup) {
+        await interface.runPoll(pollId);
+      }
+    }))));
+    logger.log('Interfaces polling setup complete.');
+
     logger.log('Starting polling on devices...');
     await Promise.all(Object.values(devices).map((device) => Promise.all(Object.entries(device.polling).map(async ([pollId, poll]) => {
       logger.log(`Registering polling (${pollId}) on device (${device.id})`);
