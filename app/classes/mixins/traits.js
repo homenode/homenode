@@ -111,7 +111,7 @@ module.exports = function TraitsMixin(obj, storagePrefix) {
 
   obj.getTraitLastChanged = (id) => {
     const trait = obj.getTrait(id);
-    return trait.lastChange;
+    return trait.lastChanged;
   };
 
   obj.getTraitLastUpdated = (id) => {
