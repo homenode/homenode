@@ -121,4 +121,14 @@ module.exports = {
       resolve();
     });
   }),
+  registerApiRoute: (verb, path, handler) => {
+    app[verb](path, async (req, res) => {
+      const Homenode = require('../main.js');
+      // Pass Homenode main instance into the handler, useful for plugins that needs access to the registry.
+      return handler(req, res, Homenode);
+    });
+    const fullPath = `http://localhost:${config.port}${path}`;
+    logger.log(`Route Registered: ${verb}: ${fullPath}`);
+    return fullPath;
+  },
 };

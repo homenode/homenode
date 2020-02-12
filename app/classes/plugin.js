@@ -1,6 +1,9 @@
+const _ = require('lodash');
+
 const Registry = require('../lib/registry.js');
 const Schema = require('../lib/schemas.js');
 const Logger = require('../lib/logger.js');
+const Api = require('../lib/api.js');
 
 const Interface = require('../classes/interface.js');
 const Device = require('../classes/device.js');
@@ -55,7 +58,12 @@ module.exports = function pluginClass(pluginType) {
     config.schemaName = instanceSchemaName;
 
     this.deviceTypes[config.type] = config;
+  };
 
+  this.registerApiRoute = (verb, path, handler) => {
+    const cleanPath = _.trim(path, '/');
+    const prefixedPath = `/${pluginType}/${cleanPath}`;
+    return Api.registerApiRoute(verb, prefixedPath, handler);
   };
 
   this.interface = (instanceConfig) => {
