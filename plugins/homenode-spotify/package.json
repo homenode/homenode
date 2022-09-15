@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "spotify-web-api-node": "^4.0.0"
+    "spotify-web-api-node": "^5.0.0"
   }
 }

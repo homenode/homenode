@@ -14,9 +14,9 @@ module.exports = {
       handleChange(value) {
         const node = this.getConfig('node');
         if (value) {
-          this.interface.zwave.setValue(node, 38, 1, 0, 255); // 255 turns on last level
+          //this.interface.zwave.setValue(node, 38, 1, 0, 255); // 255 turns on last level
         } else {
-          this.interface.zwave.setValue(node, 38, 1, 0, 0);
+          //this.interface.zwave.setValue(node, 38, 1, 0, 0);
         }
       },
       afterChange(newTrait, oldTrait) {
@@ -35,8 +35,8 @@ module.exports = {
         if (value > 99) {
           value = 99;
         }
-        const node = this.getConfig('node');
-        this.interface.zwave.setValue(node, 38, 1, 0, value);
+        //const node = this.getConfig('node');
+        //this.interface.zwave.setValue(node, 38, 1, 0, value);
 
         // Update power, if this turned the light on or off
         if (!this.getTraitValue('power') && value > 0) {
@@ -65,7 +65,10 @@ module.exports = {
     },
   },
   homekit(accessory, HomeKit) {
-    const { Service, Characteristic } = HomeKit;
+    const {
+      Service,
+      Characteristic
+    } = HomeKit;
 
     const service = accessory.addService(Service.Lightbulb, this.name);
     const power = service.getCharacteristic(Characteristic.On);

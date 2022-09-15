@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "serialport": "^7.1.5",
-    "lodash": "^4.17.11"
+    "serialport": "^10.4.0",
+    "lodash": "^4.17.21"
   }
 }

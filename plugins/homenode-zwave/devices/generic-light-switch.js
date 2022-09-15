@@ -13,7 +13,7 @@ module.exports = {
       default: false,
       handleChange(value) {
         const node = this.getConfig('node');
-        this.interface.zwave.setValue(node, 37, 1, 0, value);
+        //this.interface.zwave.setValue(node, 37, 1, 0, value);
       },
       afterChange(newTrait, oldTrait) {
         if (newTrait.value === true && oldTrait.value === false) {
@@ -41,7 +41,10 @@ module.exports = {
     },
   },
   homekit(accessory, HomeKit) {
-    const { Service, Characteristic } = HomeKit;
+    const {
+      Service,
+      Characteristic
+    } = HomeKit;
 
     const service = accessory.addService(Service.Lightbulb, this.name);
     const power = service.getCharacteristic(Characteristic.On);
