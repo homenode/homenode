@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/homenode/homenode#readme",
   "dependencies": {
-    "ajv": "^6.10.0",
+    "ajv": "^6.12.3",
     "better-ajv-errors": "^0.6.4",
     "chalk": "^2.4.2",
     "color-hash": "^1.0.3",
